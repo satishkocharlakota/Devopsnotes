@@ -1,4 +1,4 @@
-
+Docker docker docker docker
 Docker :
 
 Docker is a containerization platform which helps us to provide process isolation.
@@ -403,7 +403,7 @@ Installation of docker compose.:
 
 1.	Create Development environment with docker compose if link mysql container with wordpress container
 Vim docker-compose.yml
-Version: ‘3’
+Version: Â‘3Â’
 Services:
 	Intelliq-mysql:
 	Image: mysql
@@ -417,7 +417,7 @@ Services:
 Create QA environment via docker compose:
 Start selenium hub container and link it with firefox and chrome nodes.
 Vim  docker-copose.yml
-Version: ‘3”
+Version: Â‘3Â”
 Services:
 	Selenium-hub:
 Image: selenium/hub
@@ -439,7 +439,7 @@ Call one as qa server and another one as prod server
 Link qa server and prod server with Jenkins server
 Step : vim docker -copose.yml
 Go to insert mode
-Version: ‘3’
+Version: Â‘3Â’
 Services:
   Jenkinsserver:
    Image: Jenkins
@@ -476,7 +476,7 @@ Steps:
 1.Create a directlroy
 	Mkdir /volume
 2.Create a docker container and mount /volume on it
-      Docker run –it –name myubuntu –v /volume Ubuntu
+      Docker run Â–it Â–name myubuntu Â–v /volume Ubuntu
 3.In the container go into volume folder
        cd volume
 4.Create some files
@@ -501,14 +501,14 @@ If we want  to share the data volume of one container with other containers then
 1.	Create an empty directory
 Mkdir /data
 2.	Start and Ubuntu container and mount the above created directory as a volume
-Docker run –it –name container1 –v /data Ubuntu
+Docker run Â–it Â–name container1 Â–v /data Ubuntu
 3.	In the container cd to data foler and create some files
 Cd data
 Touch file1 file2
 
 4.	Come out of the container without exit (ctrl+p, ctrol+q)
 5.	Create another Ubuntu container and this container should use the volume of container1
-Docker run –it –name container2 –volumes-from container1 ubuntu
+Docker run Â–it Â–name container2 Â–volumes-from container1 ubuntu
 
 In container 2 cd to data foler
 Create some files 
@@ -516,7 +516,7 @@ Cd dta
 Touch file3 file4
 6.	Come out of the container without exit (ctrl+p, ctrol+q)
 7.	Create another Ubuntu container and this container should use the volume of container2
-Docker run –it –name container3 –volumes-from container2 ubuntu
+Docker run Â–it Â–name container3 Â–volumes-from container2 ubuntu
 
 In container 3 cd to data foler
 Create some files
@@ -553,7 +553,7 @@ To delete an existing network
 Docker network rm networkname/networked
 
 To statrt a container on a specific network 
-Use –network option in the run command
+Use Â–network option in the run command
 
 To connect a running container to a network
 Docker network connect networkname/networked  containername/container id
@@ -578,14 +578,14 @@ Docker network create intelliq1
  Docker network create intelliq2
 
 2.	Create a busy box container on intelliq1 network
-Docker run –it –name c1 –network intelliq1 busybox
+Docker run Â–it Â–name c1 Â–network intelliq1 busybox
 
 3.	Comeout of the container without exit (ctrl+p, ctrl+q)
 4.	Docker inspect container1
 From the above output capture the ipdddress of c1
 
 5.	Create another busybox container on intelliq1 network 
-Docker run –it –name c2 –network intelliq1 busybox
+Docker run Â–it Â–name c2 Â–network intelliq1 busybox
 
 6.	In the c2 container
 Ping ipaddress-of-c1 (it should ping)
@@ -596,7 +596,7 @@ Ping ipaddress-of-c1 (it should ping)
 From the above output capture the ipdddress of c2
 
 9.	Create another container on the intelliq2 network
-Docker run –it  --name c3 –network intelliq1 busybox
+Docker run Â–it  --name c3 Â–network intelliq1 busybox
 In the container
 Ping ipaddress-of-container1
 Ping ipaddress -of container2
@@ -663,13 +663,13 @@ Create a docker file based on busybox  image and execute the default command as 
 Vim docker file
 FROM busybox
 MAINTAINER intelliq
-CMD [“date”]
+CMD [Â“dateÂ”]
 
 Save and quit
 
 To build and image above the docker file
 
-Docker build –t busybox1 .   (t stands for tag for any name)  . represents current working directory)
+Docker build Â–t busybox1 .   (t stands for tag for any name)  . represents current working directory)
 
 Entrypoint:
 
@@ -678,14 +678,14 @@ Create a docker file based on Ubuntu based image and this should display the con
 Vim docker file
 FROM Ubuntu
 MAINTAINER intelliq
-ENTRYPOINT [ “/bin/cat”]
-CMD [“/ETC/PASSWD”]
+ENTRYPOINT [ Â“/bin/catÂ”]
+CMD [Â“/ETC/PASSWDÂ”]
 
 Save and quit
 
 To build an image from above docker build
 
-Docker build –t ubuntu1 .
+Docker build Â–t ubuntu1 .
 
 Create a docker file from Ubuntu based image  Update apt repository and install git
 
@@ -694,15 +694,15 @@ Vim docker file
 FROM Ubuntu
 MAINTAINER intelliq
 RUN apt-get update
-RUN apt-get install –y git
+RUN apt-get install Â–y git
 
 Save and quit
 Build an image from the above docker file
 
-Docker build –t Ubuntu  .
+Docker build Â–t Ubuntu  .
 
-When we start this image as container… git preinstalled.
-Docker run  --name myubuntu  –it ubuntu1
+When we start this image as containerÂ… git preinstalled.
+Docker run  --name myubuntu  Â–it ubuntu1
 
 Cache busting:
 
@@ -716,7 +716,7 @@ Create a docker file for installing various packages using cache busting:
 Vim docker file
 FROM centos
 MAINTAINER  intelliq
-RUN yum update –y && yum install –y git  httpd  vsftpd  maven
+RUN yum update Â–y && yum install Â–y git  httpd  vsftpd  maven
 
 
 
@@ -727,15 +727,15 @@ Vim docker file
 FROM Jenkins
 MAINTAINER intelliq
 USER root
-RUN apt-get update && apt-get install –y git maven.
+RUN apt-get update && apt-get install Â–y git maven.
 Save and quit
 
 Build an image from the docker file
 
-Docker build –t myjenkins  .
+Docker build Â–t myjenkins  .
 
 Start a container using that image
-Docker run –d –name  j1  myjenkins
+Docker run Â–d Â–name  j1  myjenkins
 
 Go into the shell of that container we will see root is the user git and maven are already installed.
 Docker exec  -it  j1 bash
@@ -763,7 +763,7 @@ Make the first machine as manager and the other machines as worker 1 and worker2
 Install docker on all these 3 machines.
 
 To initialize docker swarm goto the manager machine enter
-Docker swarm init –advertise-addr 10.10.10.11
+Docker swarm init Â–advertise-addr 10.10.10.11
 
 The above command make the current node as manager and in the output of this command
 It will show  the command for creating workers. Copy that command and paste it in the worker node.
@@ -774,7 +774,7 @@ Docker node ls
 To create a service in the docker swarm we can use docker swarm create command
 Deploy the Nginx into docker swarm with 5 replicas and give it a name webserver.
 
-Docker service create –name webserver –p 80:80 –replicas 5 nginx
+Docker service create Â–name webserver Â–p 80:80 Â–replicas 5 nginx
 
 To see the list of nodes on which this service is currently running.
 
@@ -794,7 +794,7 @@ Create 3 replicas of redis service in the docker swarm and name it myredis
 Initially it should be working on redis 3.0.6 version.
 Upgrade redis from 3.0.6 to 3.0.7 and this update operation get reflects on docker hosts.
 
-Docker service create –name myredis –replicas 3 redis:3.0.6
+Docker service create Â–name myredis Â–replicas 3 redis:3.0.6
 
 To see the list of nodes on which this my redis is running:
 
@@ -802,19 +802,19 @@ Docker service ps myredis
 
 To update to 3.0.7 version
 
-Docker service update –image redis:3.0.7 myredis
+Docker service update Â–image redis:3.0.7 myredis
 
 Docker service ps myredis
 
 To rollback myredis to the previous version:
-Docker service update –rolback myredis
+Docker service update Â–rolback myredis
 
 
 
 Create 3 replicas of mysql
 Go into the shell of mysql and create some tables
 
-Docker service create –name mydb –replicas 3 –e MYSQL_ROOT_PASSWORD=intelliq mysql
+Docker service create Â–name mydb Â–replicas 3 Â–e MYSQL_ROOT_PASSWORD=intelliq mysql
 
 
 
@@ -874,7 +874,7 @@ Vi newhost.cfg
    Define host {
 Host_name ec2.hostname
 Alias store
-Address “ip address of ec2 instance”
+Address Â“ip address of ec2 instanceÂ”
 Max_check_attempts 3
 Check_period 2487
 Check_command check-host-alive
@@ -885,7 +885,7 @@ Notification_period 2487
 To start services
 Define service{
 	Use generic-service
-	Host_name “ec2 IP address”
+	Host_name Â“ec2 IP addressÂ”
 	Service_description    HTTP
 	Check_command check_http
 	}
