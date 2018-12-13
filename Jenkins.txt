@@ -1,0 +1,629 @@
+Date: 19-01-2018
+
+
+Jenkins
+
+Jenkings is a toool for implementing CI - CD
+
+USING jenkings we can autoate the complete build and release and release the cycles
+
+Installing jenkins on windows
+
+
+1. open https://jenkins.io/download/
+
+2. go to login term suport (LTS)
+3. Download the version related to Windows
+4 Install it.
+5 To start work on Jenkins
+	Open any browser
+	Navigate to (localhost:8080)
+
+6. In the unlock jenkins page enter the password and click on continue.
+7. Click on install suggested plugins.
+
+
+
+
+
+CI - CD STEPS:
+
+STEP 1 : CONTINUOUS DOWNLOAD
+	 wHENEVER THE DEVELOPER MAKES ANY MODIFICATIONS TO THE CODE AND UPLOADS THEM INTO SOME VERSION CONTROLLING SYSTEMS(GIT SVN), JENKINS WILL DETECT THOSE CHANGES AND DOWNLOAD THE CODE.
+
+STEP 2. CONTINUOUS BUILD:
+	on the code that has been dowloaded in the previous step jenkins will perform a build process  usig plugins like (ant, maven, ms build etc) and it will create an artifact (jar, war, ear, exe etc)
+
+STEP 3. CONTINUOUS DEPLOYMENT:
+	The artifact that has been created in the previous step should be deployes into some application server (tomcat, weblogic, jboss etc) running in the QA environment.
+
+STEP 4. CONTINUOUS TESTING:
+
+	Te testing team might be using some automation testing tools (selenium codeui etc). Jenkins now calls these automation testing program and performs an automation testing on the application deployed into testing environment.
+
+STEP 5. CONTINUOUS DELIVERY:
+
+	Once testing has passed jenkins will deploy the artifact into the production environment  where the enduser can start accessing it.
+
+
+
+20-01-2018
+
+
+Common Plugins used in Jenkins:
+
+1. Git Plugin : This is used by jenkins ito integrate with Github and download the source code.
+
+2. Maven Integration Plugin : This is used to integrate Jenkins with maven to create an artifact.
+
+3. Deploy to container Plugin : This is used by Jenkins to deploy the artifact into an application server.
+
+4. Copy artifact plugin : This is used to copy the artifacts of one job into another job in jenkins.
+
+5. Build Pipeline Plugin : This is used to seee the flow of Jenkins jobs in a graphical format.
+
+6. Blueocean Plugin : This is used for getting a complete new theme for jenkins called blueocean. The coming versions of jenkins will be using blue ocean as the default theme.
+
+  
+
+Setting up Jenkins for CI - CD
+
+1. Download and install jdk1.8 or jdk 1.9
+
+2. Download and install git for windows
+3. Download apache maven (bin.Zip version)
+4  Open the dashboard of Jenkins (localhost:8080) 
+5. Click on manage jenkins --> click on Global tool configuration -- .
+6. Goto jdk installer and  enter some name for java --> Set the path of Java_Home (local java installer path) Like  
+7. One the same page to to git installation give some name to git and paster the path of git.exe
+8. One the same pae go to maven installations give some name to maven and enter the path of apache maven that we downloaded.
+
+
+
+Step 1 - Continuous Download:
+
+1. Open the dashboard of jenkins (Localhost:8080)
+2. Click on manage jenkins --> manage plugins
+3. Goto available section --> search for git plugin -- > install it --> apply -- save.
+4. Go to the dashboard of jenkins.
+5. Create a new Job:
+	click on new item --> Enter item name as Development --> select free style project --> ok.
+6. Click on source code management --> Click on Git
+7. Enter the github url where the developers have uploaded the code
+	https://github.com/selenium-saikrishna/maven.git
+8. Click on apply --> save
+
+9. Go to the dashboard of jenkins--> Go to the development job and click on build icon.
+
+
+Step 2.  - Continuous Build:
+
+1. Open the dashboard of jenkins
+2. Click on manage jenkins --> manage plugins
+3. Go to available section --> Search for maven integration plugin --> install it.
+4. Go to the dashboard of jenkins --> Go to the development job we created --> Click on configure
+5. Go to build section --> Add build step
+6. Click on top level maven tragets.
+7. Select the name of maven and enter the goals as clean package
+8. Click on apply --> save
+9. go to dashboard of Jenkins --> go to development job --> click on build
+
+	This will download the modifications from git and with the help of maven create a artifact (war file)
+
+
+Date: 22-01-2018
+
+
+STEP NO.3 : CONTINUOUS DEPLOYMENT:
+
+The war file created with teh help of maven in the previous step should bedeployed into the QA environment.
+The QA servers might be using some application servers like tomcat, weblogic etc.  The war file should be deployed into these application servers.
+
+1. Download apache tomcat 7 (https://tomcat.apache.org/download-70.cgi
+ (Go to binary distributions --> download zip version)
+
+2. Open the tomcat folder and open  conf --> server.xml file, go to connector port and change it form 8080 to 8899
+	 open tomcat -user.xml file and add the below statement
+	<user username-"admin" password-"admin" roles="manager-script"/>
+
+3. Open bin folder --> click on startup.bat file.
+
+4. Open the dashboard of jenkins (localhost:8080)
+5. Click on available --> search for 'Deploy to container' install it.
+6. Go to the Development job
+7. click on configure
+8. go to post build actions
+9. Click on add post build action
+10. Click on Deploy war/ear to container
+
+WAR/EAR FILES  **/*.war
+context path : qaenv
+
+containers	Tomcat 7.x
+credentials 	admin/*****
+
+tomcat url : http//localhost:8899
+
+save /apply
+
+This will deploy the artifact into the tomcat server and we can see the UI of the page by opening any browser localhost:8899/qaenv
+
+
+STEP NO.4: CONTINUOUS TESTING
+
+The testing team will create some automation testing programs and upload them into the Git Hub. 
+We should download those programs using jenkins and run them on the application that is deployed into the QA environment.
+
+1. Open the dashboard of jenkins (localhost:8080)
+2. Click on new item --> Give item name as Testing
+3. Click on free style project --> OK
+4. Go to source code management --> click on git
+5. Enter the git repository url provided by the testing team
+	https://github.com/selenium-saikrishna/testing.git
+6. click on appply
+7. To run the testing programs
+8. Go to build section --> Add build step
+9. Execute windows batch command
+	java -jar testing.jar
+10 click on apply --> save
+11. Go to the dashboard of jenkins --> go to the testing job 
+2. click on build icon
+13. the above job will download the selenium testing programs from the github and it will run those programs on the application and display the result.
+
+Date : 23-01-2018
+ 
+linking jobs in jenkins
+
+The development job should be linked with the testing job so that they are executed one after other.
+
+1. Open the dashboard of jenkins
+2. Go to the development job --> click on configure
+3. go to post build actions --> click on add post build action.
+4. Click on build other jobs --> enter job name as Testing -->apply -->save.
+
+
+java -jar testing.jar
+
+Copy artifacts from one project to other:
+
+The development job in jenkins has created an artifact (war file).  This war file should be passed to the testing job so that the Testig job can deploy it in the production servers.
+For this we need to install a plugin "Copy artifact plugin"
+1. go to dashoard of jenkins
+2. Click on manage jenkins -->manage plugin--> search for copy artifact plugin -->install it.
+3. Go to the dashboard of jenkins-->go to development job-->go to postbuild actions --> add post build actions--> archive the artifact--**/*war
+4. Go to dashboard of jenkins-->go to testing job-->click on configure-->go to build section click on add build step --> copy artifact from other project--> Eter project name as development-->apply-->save.
+
+
+Step 5 : Continuous Delivery:
+
+ Once the testing job as passed we should deploy the artifact into the production servers.
+1. Open the dashboard of Jenkins
+2. Go to the testing job-->configure-->go to postbuild action-->add post build actions--> deploy war/ear to container-->
+	war/ear files	**/*.war
+	contest path	prodenv
+
+	containers	tomcat 7x	
+	credentials	admin/xxx
+	tomcat url	http://localhost:8899
+click apply/save
+
+3. go to the dashboard of jenkins and run the development job.. Now it will perform all the five steps  of CI-CD.
+
+
+Setup of Jenkins on Linux
+
+Create 3 linux instances (private vms or aws)
+
+using vagrant
+
+1. Download and install oracle virtual box
+2. Download vagrant and install it.
+   https://www.vagrantup.com/downloads.html
+3. Create a folder and copy the vagrant file into it.
+4. Open cmd prompt
+5. Cd to the above create folder
+6. Vagrant up (command)
+
+
+username and password for instances is 'vagrant'
+ 
+24-01-2018
+
+
+Intalling Jenkins on Linux systems:
+
+1. Go to the jenkins server linux machine (username: vagrant password: vagrant)
+2. Sudo passwd root  enter some root password
+3. su - root  enter password for root
+4. Uninstall existing versions of java : apt-get purge java*
+5. Add java8 to the apt-repository add-apt-repository ppa:webupd8team/java
+6. Update the apt repository  apt-get update
+7. Install oracle-java8  apt-get install oracle-java8-installer
+8. Download jenkins keys and add to apt keys
+	wget -q -o - https://pkg.jenkins-ci.org/debian/jenkins-ci.org.key  apt-key add -
+      echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list
+9. Update apt repository  : apt-get update
+10. install jenkins   apt-get install jenkins
+11. install maven and git	
+	apt-get install -y maven git
+
+
+Installing tomcat7 on QAserver and Prod server:
+
+1. Login into QA server or Prodserver
+2. Switch into root user account
+3. update the apt repository
+	apt-get update
+4. Insall tomcat7
+	apt-get install tomcat7
+5. Install tomcat7-admin
+	apt-get install tomcat7-admin
+6. cd / etc/tomcat7
+7. Edit tomcat users.xml file
+	vi tomcat-users.xml
+	GO into insert mode by pressing i and add the below statement
+	<user username="admin" password="admin"	roles="manager-script"/>
+	save and quit (esc :wq enter)
+
+8.service tomcat7 restart
+
+OPen the dashboard of jenkins
+1. Open any browser
+	EC2 instancename:8080
+2. Setup Jenkins
+3. Click on manage jenkins--> Global Tool configurations
+4. Here we should set teh path of jdk, maven and git
+5. Login into the console of jenkins server
+6. Which java
+7. copy the output of the above command and readlink -f paste the output of above command
+8. copy the path before in folder and paste it in jenkins for java_home
+	/usr/lib/jvm/java-8-oracle/jre
+9. similarly go to the git sectin
+	which git
+	copy the path and paste it in path to git executable
+10. click on maven installation
+	which mvn
+11. copy the path before bin folder
+12. paste it in maven_home
+	/usr/share/maven
+
+
+	
+27-01-2018
+
+
+User Management in Jenkins.
+
+Creating users in Jenkins
+
+1. Open the dashboard of jenkins
+2. click on manage jenkins
+3. click on manage users
+4. click on create users
+5. enter user credentials
+
+Creating roles and assigning.
+
+1. open the dahsboard of jenkins
+2. click on manage jenkins
+3. click on manage plugins
+4. click on role based authorisation strategy plugin
+5. intall it
+6. go to dashboard -->manage jenkins
+7. click on configure global security
+8. check enable security checkbox.
+9. go to authorisation section--> click on role based strategy radio button
+10. apply-->save
+11. go to dashboard of jenkins
+12. click on manage jenkins
+13. click on manage and assign roles.
+14. click on manage roles
+15. go to global roles and reate a role "employee"
+16. for this employee in overall give read access and in view section give all access
+17. go to project roles- ->give the role as developer and patter as Dev.* (ie developer role can access only those jobs whose name start with Dev)
+18. similarly create another role as tester and assign the pattern as "Test.*
+19. give all permission to developer and tester
+20. apply -->save
+21. click on assign roles
+22. go to global roles and add user1 and user2.
+23. check user1 and user2 as employees
+24. go to item roles
+25. add user1 and user2
+26. check user1 as developer and user2 as tester
+27. apply -->save
+ if we login into jenkins as user1 we can access only the development related jobs and user2 can access only the testing related jobs.
+
+
+
+
+29-01-2018
+
+Jenkins Notifications:
+
+
+Whenever a job executed through jenkins we can send notifications to the team members in the following 2 ways
+
+1. Email notifications
+2. Cat light notifications
+
+Email notifications:
+
+1. Open the dahsboard of Jenkins
+2. Click on manage jenkins
+3. click on configure systems
+4. go to email notifications
+
+SMTP server 	smtp.gmail.com
+
+Click on Advance
+
+Check mark : used SMTP authentication:
+
+		Enter gmail username and password:
+		Check mark use SSL
+		Enter SMTP port number 465
+check mark : 	Test configuration by sending test email.
+
+
+
+
+Goback to dahsboard of Jenkins
+go to any job that should send notification and 
+go to configure
+go to postbuild actions
+click on add post build action
+click on email notification
+entier email id s OF team members seperated by space
+click on apply/save.
+
+
+Catlight Notifications:
+
+Catlight is a third party software which can be integrated with jenkins for sending notifications. 
+These notifications come in the form of popup messages on the desktop of the corresponding developer or tester.
+
+1. Open https://catlight.io/downloads
+2. Downloard and install catlight
+3. open cat light and signup for a new account
+4. It will display various CI tools that can integrated with catlight --> select jenkins
+5. Enter the jenkins username and password
+6. Catlight will display the list of job--> select the jobs
+8. Open the dashboard of jenkins and run that job.
+9. we should see a notification coming on the desktop.
+	
+
+30-01-2018
+
+
+Build pipeline plugin:
+
+This plugin is used for generating a graphical view of the jenkins jobs
+
+1. Open the dashboard of jenkins
+2. Click on manage jenkins--?manage plugins
+3. Go to available section-->Search for build pipeline plugin
+4. Install it.
+5. Go to the dashboard of jenkins
+6. Go to the table where all the jobs are present.
+7. Click on +  --> give some name for the view --> ok
+	apply -->save.
+
+
+
+code as pipeline:
+
+We can controll the complete jenkins CI-CD flow using a file call as jenkins file.  This file created using groovi script.
+and it enables the developers to integrate their code directly with the jenkins file. 
+
+
+
+-
+01-02-2018
+
+
+Setting ssh keys from Jenkins server to QA server and Prod Server
+
+In the machine where we install jenkins we also get a user called jenkins.  From this jenkins user we should generate the ssh keys and copy them into the ubuntu/vagrant user on the QA server and Prod Server.
+
+1. Open the console of teh Jenkins sever
+2. Sudo passwd Jenkins
+3. su -Jenkins
+4. Open the console of the QA server
+5. Sduo passwd for ubuntu/vagrant
+6. cd/etc/ssh
+7. sudo vim sshd_config
+	go into insert mode by pressing i
+	search for password Authentication and change it from 'no' to  'yes'
+
+	save and exit from the file useing (Esc :wq)
+8. Restart ssh
+	sudo service ssh restart
+
+9. Repead the step no.4 to 8 on the prod server.
+
+10. Open the console of the Jenkins server
+11. su - jenkins
+12. ssh keygen
+	the above command will create 2 keys public key and private key.  We should copy the public key onto the QA and Prod Servers.
+
+13. ssh-copy-id ubuntu/vagrant@ipaddress-of QA/Prod Server.
+
+
+
+
+Code as pipeline in Jenkins. 
+
+The complete CI-CD steps of jenkins can be automated using a file called jenkinsfile.  This file is created in groovy script.
+The advantage of using jenkinsfile is we donot need to install any plugins in jenkkins and we don't need to set the path of any softwares.. 
+This jenkins file can be uploaded by the developer into his git repository and from there.he can initiate the CI-CD process of jenkins.
+
+
+
+02-02-2018
+
+
+Master slave concept in Jenkins:
+
+
+Jenkins can execute jobs in distributed environment using the master slave concept.
+
+When multiple  Jenkins jobs scheduled at the same time running all of them in a single server will downgrade the performance of jenkins. So we can attach the slave machines
+to jenkins and distribute the jobs between the slaves.
+
+1. Open the slave machine, we should  download the slave.jar file from the jenkis server
+2	wget http://jenkins-server-ip:8080/jnlpJars/slave.jar
+3. Change the permission of slave.jar
+4. chmod 777 slave.jar
+5 create a folder which will work as worspace for jenkins on this slave machine
+6. mkdir workspace
+7. chmod 777 workspace
+
+1. Open the dashboard of jenkins
+2. click on manage jenkins
+3. Click on manage node -->new node--> 
+	enter some name --> Select permanent agent-->click save
+
+
+
+	name 			slave1
+	Description
+	of executors
+	Remote root		/home/ubuntu/workspace
+	Labels			node1
+	usage			use this node as much as possible
+	Launch mdethods		launch agent via execution of command on the master
+				launch command 	ssh ubuntu@172.31.24.45 java -jar /home/ubuntu/slave.jar
+
+		click on save
+
+any job associated with this label will be executed in slave1
+
+
+Go to the dashboard of jenkins
+Go to the job that should be scheduled on a slave .. click on configure
+Go to general section --> check mark Restrict where the job can be run --> click on lable --> apply/save.
+
+This job associated with this label will be executed in slave1
+
+
+  
+
+
+code as pipeline
+
+Jenkins cicd steps can be automated using file called jenkins file.
+
+This file is created using groovy syntax. The advantage of using jenkins file is over regular cicd  is the jenkins file gets uploaded into the github repository and whenever developer makes any changes and pushes them into github jenkins file will trigger the cicd from git itself.
+
+1. Open the dashboard of jenkins--> click on new item--> enter some item name (codeaspipeline) --> select pipeline project --> click ok.
+
+2. Go to the pipeline section--> in defination select pipeline script-->
+	the groovy script should be specified here. To generate sample groovy code--> click on pipeline syntax. In the steps section select node--> enter node lable as master--> click on generate pipeline script --> copy the code and paste it in script location.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

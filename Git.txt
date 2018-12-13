@@ -1,0 +1,666 @@
+08-03-2018
+
+
+Version controlling:
+
+version controlling is process of saving different versions of the code.  Each developer at the end of the day uploads his code into some version controlling system. The version controlling systems accept the code coming from multiple developers and created one integrated project out of those uploads.
+
+The porocess of uploading into version controlling is called checkin.
+The next day when the developers download the code from the version controlling system in this downloaded code they can find the work done by the entire team members. downloading is called checkout.
+
+Version controlling systems are two types:
+1. Centralised version controlling
+2. Distributed version controlling:
+
+CVC: In cvc the version controlling software is installed on a single machine all the developers have to upload their code into this server.  Version controlling happens only on this machine.  It tracks the changes done by each developer
+
+DVC: In DVC we have a local repository installed on every individual developers machine. The code created by each developer will be uploaded first into this local repository. Version controlling happens in this local repository at the level of individual developer.
+
+Later this code from local repository is uploaded into a remote repository which runs on a centralised server. Here version controlling happens at the level of the complete team.
+
+Installing Git on windows:
+1. Open https://git-scm.com/downloads
+2. download Git for windows and install it
+3. Open git bash and fire Git commands
+
+Installing git on ubuntu machine
+
+1. sudo apt-get update
+2. sudo apt-get install git
+
+installing git on centos, fedora, OEL, RHEL
+
+1. sudo yum updarte
+2. sudo yum install git
+
+
+
+09-03-2018
+
+Open Gitbash set the username and email ID for all the users for git on this machine.
+
+
+
+git config --global user.name "sai krishna"
+
+git config --global user.email "selenium.saikrishna@gmail.com"
+
+
+to see the list of  all the global configuration:
+git config --global --list
+
+to edit the default configurations:
+git config --global -e
+
+Create a folder and put some files in it.
+Open Gitbash change directory to  this folder.
+this folder where developer storing the code should be converted into a git reporsitory. this can be done using this command
+git init
+
+Note: git init will create a hidden folder called as .git.  Once this folder is created we can start executing git commands.
+
+
+Git is devided into 3 sections:
+
+1. Working Directory
+2. Staging Area
+3. Git Local Repository
+
+Working directory is the default folder where the developer is creating the code. the file presend here are called untracked files.
+
+stagging area is the intermediate buffer zone into which files are initially transferred. The files in stagging area are called stagged files.
+
+Git Local Repository is the area where version controlling happens at the level of the individual developer.  All the files in the stagging are sent intothe local repository.  These files are called committed files.
+
+
+To send files from working directory to stagging area 
+git add filename
+
+To send multiple files into stagging area
+git add file1 file2 file3
+
+To send all the files present in the current working directory into staging area
+git add .
+
+Note: . represents current working directory.
+
+To remove a file from  stagging area and bring back to untracked section
+git rm --cached filename
+or 
+git reset filename
+
+
+To send files from stagging are to local repository
+git commit -m "some message"
+
+To see the list of files in untracked section and stagging area
+git status
+
+to see all the commits done into the Local Repository
+git log
+
+
+.gitignore
+
+This is a hidden file which is used to store info about files  that git should not track.
+If the developer wants to have some files inthe working directory which are private and he does not want ot send them into the local repository he can specify those filenames in.gitignore file
+
+
+touch file1 file2 file3 file4
+git status
+The above command will show the four files as untracked files
+	
+cat > .gitignore
+file1
+file2
+file3
+file4
+come out of cat  command by using ctrl+d (EOF)
+
+git status
+Now we will see that git will no longer track the files whose names are mentioned in .gitignore file.
+
+
+10-03-2018
+
+
+The code committed into the git Local repository has to be uplodaded into the remote git repository
+
+1. Open github.com
+2. signup for a free account
+3. signin account
+4. click on + icon on top right corner --> new repository
+5. Enter some reposiroty name --> click on create repository
+6. go to push  an existing repository from command line
+	copy the first command and paste it in git bash
+	the above command will link git local repository with remote repository.
+7. copy the second command and paste in git bash
+	this command will push the code from local repository to remote repository
+	enter username and password of github account.
+
+Note: This is called checkin.
+
+downloading the code from Git
+
+This is called checkout and it can be done in 3 ways
+1. git clone
+2. git fetch
+3. git pull
+
+Git clone:
+
+syntax
+	git clone "Remote git hub url"
+	this will download the complete git remote repository irrespective of whether the same repository is present on the local machine or not.
+
+Branching in git:
+
+By default all the activities in git happen on the master branch.
+we can create multiple branches so that the developer can create his code seperately for every functionality.
+Branching will enable us to create code in an uncluttered way. i.e., the developer can create a development branch and test branch and store the code related to developmenent on the development branch and the testing code on the test branch.  Once the code has been created correctly it can be merged with the master branch.
+
+to see the list of branches
+git branch
+
+To see all the branches (local and remote)
+git branch -a
+
+to crate a branch
+git branch branchname
+
+to switch into branch
+git checkout branchname
+
+to merge a branch
+first checkout to master branch
+git merge branchname
+
+git fetch
+
+this will download only the modified files and save them on a remote branch.  We can checkin into that remote branch and view the modifications
+if we are satisfied with the modifications we can merge them with the master branch.
+
+1. Open github.com --> edit a file --> commit
+2. in git bash
+	git fetch
+3. The modified files will be placed on a remote branch
+4. Git branch -a
+5. Move to that remote branch
+	git checkout /remotes/origin/master
+6. view the changes. If the changes are ok move to the master branch and merge the remote branch.
+    git checkout master
+    git merge /remotes/origin/master
+
+
+git pull
+
+This will download the modified files and directly merge them with the master branch.
+1. open github.com-->edit a file ---> commit
+2. In git bash
+	git pull
+3. the modified files will be directly placed in the master branch.
+
+
+
+14-03-2018
+
+
+Git Branching:
+==============
+
+Create 2 branches called dev and test
+
+git branch dev
+git branch test
+
+To create a branch and checkout into that branch
+git checkout -b branchname
+
+Bothe the dev branch and test branch will contain all the data from the master branch at the time of creation it will also show the complete commiit history of master branch.
+
+Move into dev branch and modify some files
+
+git checkout dev
+cat > file1
+put some data in this file
+save file1
+
+add this file into stagging area from dev branch
+git add .
+commit the file
+git commit -a "some message"
+
+Any file committed from a branch belongs to taht branch only
+If we checkout from the master branch we will not find those changes in file1 in the master branch
+
+To merge those change with master branch
+First cheout to master branch
+git checkout master
+git merge dev
+
+
+To delete a branch whcih is merged with master branch
+git branch -d branchname (soft delete)
+
+To delete an unmerged branch
+git branch -D branchname (hard delete or force delete)
+
+
+15-03-2018
+===========
+
+Git branching for practice:
+
+search for "git with d3"
+click on ZEN mode
+practice the branching concept
+
+Git amend
+----------
+
+This is used for changing the commit message or the data present within a commit
+
+to change only the latest commit msg
+git comit --amend -m "some message"
+
+to change the code in a specific commit
+1. Modify any file in working directory
+2. Add it to stagging area
+3. git comit --amend -m "some message"
+
+When we use "amend" option in git it will make the existing latest commit as an orphaned commit(unreachable commit) and in its place it will create a new commit.  The commits data and time will not be modified but it will get a new commit id.
+
+To see the list of all cimmits
+git log
+git log -- oneline
+
+But the above 2 commands will show only info about reachable commits.  They will not show info about orphaned commits.
+
+To see all the commit history
+git reflog
+
+Note: all the commits with amend word are orphaned commits
+To make an orphaned commit active again
+
+1. git reflog
+	identify the id of the orphaned commit
+2. git checkout orpahned-commit-ID
+3. cREATE A NEW BRANCH AND CHECKOUT INTO IT
+	GIT CHECKOUT -B BRANCHNAME
+
+The reflog command can also be used for seeing the commit history based on the number i.e., to see all the commits which were done befor HEAD 10
+git reflog HEAD@{10}
+
+to see the commits which were 3 days back
+git reflog HEAD@{3.days.ago}   similary week aswell
+
+
+to see the commits for specific date
+git reflog HEAD@{2018-03-12}
+
+
+Deleting commits from Local Repository:
+=======================================
+
+git reset HEAD~1 : This will delete the latest commit
+
+
+
+
+
+
+
+
+
+
+
+
+-12-03-2018
+
+
+ANT:
+------
+
+
+This is a build tools of JAVA and it is used for creating an artifact from a Java project.
+
+Configuring ANT:
+----------------
+
+1. Download and install jdk 1.8
+2. oPEN C drive --> program files --> JAVA --> OPEN JDK FOLDER
+3. copy it path
+4. Right click on this PC--> pROPERTIES--> aDVANCed System Settings--> Advanced-->Environment Variables
+5. go to system variables --> New
+6. Enter variable name as JAVA_HOME and paste the path of JDK
+7. Highlight the path variable-->Edit-->New-->Paste the path of JDK/bin-->ok-->ok.
+8. Download apach ant from
+	http://ant.apache.org/bindownload.cgi
+	Note: Download the bin.zip version
+9. Open it and copy its path
+10. Click on Environment variables --> Click on New-->Enterthe variable name as ANT_HOME and paste the path of ant
+11. Highlight the path variable-->Edit-->New-->paste the path of ANT/bin -->ok-->ok
+12. Check if ant is configured or not
+	open comd prompt
+	ant -version.
+
+
+Build.xml
+
+ANT performs its activities through a file called build.xml
+
+<project name="Ant build process" defaults="target3">
+
+	<target name="target1">
+	<echo>This is my first ant statement</echo>
+	</target name="target2" depends="target1"> 
+	<echo>This is my first ant statement</echo>
+
+	</target name="target3" depends="target2"> 
+	<echo>This is my first ant statement</echo>
+
+</project>
+
+
+
+ANT build stages:
+================
+
+1. clean
+2. init
+3. compile'
+4. Build
+
+
+In the clean previous artifacts are deleted.
+In init necessary folder structure is created.
+In compile .java programs are converted into .class files.
+In build the .class files are converted as a artifact.
+
+
+
+ant -f build1.xml (build1.xml indicates the name of other build xml or location of path)
+
+
+
+
+
+
+Modifying Existing commits:
+============================
+
+This can be done using the "amend" option in git command.  This will modify the commit message and also add modified files to the existing commit.
+
+1. Change some files in working dir
+2. Add them to stagging area
+	git add .
+3. Ammend the current commit
+	git commit --amend -m "some message"
+
+Git reflog:
+===========
+this command is used for seeing all the commits  both reachable commits and orphaned commits(the commits that are modified using the git amend command)
+
+Deleting a commit:
+
+This is done using the git reset command:
+
+To delete the latest commit
+git reset HEAD~1
+
+To delete the latest 3 commit
+git reset HEAD~3
+
+
+To delete a branch
+
+1. Soft delete
+2. Hard delete
+
+soft deleted is used when the branch is already merged with the master branch.
+	git branch -d branchname
+
+Hard delete is deleting a branch forcebly without merged it with master branch
+	git branch -D branchname
+
+	
+
+
+cd to working directory
+rm -rf .git
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jenkins:
+
+This is a tool for implementing continuous integration and continuous delivery. 
+Stages in CI-CD
+
+1. Continuous Download: whenever developer makes any changes to the code he will upload it into the Git Repository.  Jenkins should download this code.  These modifications to the ocde can be done on a daily or weekly basis.  Jenkins detects that changes are done to the code using  "POLL SCM"  and download the code.
+
+2. Dontinuous Build : The code that is downloaded in the previous stage should be converted into a format that can be deployed on application servers.  This process is called  build process and the out come of the build process is an "artifact".  This artifact can be a jar, war, ear, exe etc file.
+
+3. Continuous Deployment: This artifact reated in the previous step should be deployed into some application servers (tomcat, jboss etc) running in the Testing Environment, so that tester can start testing that application.
+
+4. Continuous Testing: The testing team will be using some automation testing tools (selenium, codedui, tosca etc) and the automation testing programs will be uploaded by the tester in the git repository. Jenkins should download the testing programs from git and run them on the application that was deployed into the test servers.  If testing fails jenkins should send automated email to all the team members.
+
+5. Continuous Delivery: After testing is successfull jenkins will deploy the artifact into the production environment where the client can start access it.  This deployment can be done by jenkins after taking the approvals from the delivery manager. All this process of accepting approval and sending into production server is automated.
+
+	All the above five steps are called CI-CD.
+
+
+
+Installing jenkins on windows:
+
+1. open https://jenkins.io/download/
+2. Go to long term support section
+3. download the release related to windows
+4. Install it
+5. Open any browser
+	localhost:8080
+
+
+
+
+In the unloack jenkins screen enter the password and clink on continue.
+In the getting started screen-> click on install suggested pluggins.
+create first admin user click on save/
+click on start using jenkins.
+
+
+Creating a sample job in Jenkins:
+
+1. open the dashboard of jenkins(localhost:8080)
+2. Click on new item-->Enter some item name
+3. click on free style project --> OK
+4. go to the build section
+5. Click on Add build step--> Click on Execute windows batch command
+6. Click on apply-->save
+
+7. Go to dashboard of jenkins
+8. Go to the sample job we created
+9. Click on build icon
+
+continuous download:
+
+1. Oopen the dashboard of jenkins.
+2. Click on manage Jenkins -->manage Plugins
+3. Click on available tab-->search for git Plugin
+4. Install it.
+
+5. go to the dahsboard of jenkins
+6. Click on New item--.enter item name as Development
+7. Click on Free style Project--> OK
+8. Go to source code management
+9. Select Git
+10. enter the Github url provided by the development team
+	https://github.com/selenium-saikrishna/maven.git
+11. Click on Apply-->save/
+
+12. go to the dashboard of Jenkins--> go to the development job
+13. Click on Build icon
+	Note: The above job will download the complete code from the git remote repository.
+
+
+Continuous Build:
+
+1. Download the apache maven
+	https://maven.apache.org/download.cgi
+	go to files section and download the bin.zip version
+2. Extract it an dopen it--.copy its path
+3. Open the dasboard of jenkins
+4.click on manage jenkins
+5. Click on global tool configurations
+6. go to maven Section--> Click on maven installations
+7. Enter some name for maven and in Maven _Home  pase the path of the maven folder that we downloaded.
+8. click on apply-->save
+9. go to the Development job--> click on configure
+10. go to build section-->click on Add build step
+12. Click on invoke top level maven targets
+13. Enter maven version as the name of maven we provides in global tool configurations
+14. Enter goals as (clean package)
+15. Click on apply-->save
+16. Go to the dashboard of Jenkins--> Go to the development job
+17. Click on Bild icon
+	The job will download the modifications of code done by developer from git hub with the help of maven create an artifact.
+
+
+
+19-03-2018
+
+Step 3 : Continuous Deployment:
+
+1. download apache tomcat7 from
+	https://tomcat.apache.org/download-70.cgi
+	on this page go to binary distributions and download .zip file.
+2. Extract it and open it.
+3. Tomcat also runs on port no. 8080. but as we are running jenkins also on the same port it will create a conflict to change the port no. of 	tomcat.
+	a) open the tomcat folder
+	b) open conf--> open server.xml file
+	c) search for connector port and change it from 8080 to 8899
+4. Jenkins requires username and password to access tomcat 
+	a) Open conf folder in tomact
+	b) open tomcat-user.xml
+	c) add the below statement "<user username="admin" password="password" roles="manager-script"/>
+5. Open bin folder in tomcat
+6. click on startup.bat file
+7. To access the home page of tomcat
+	launch any browser-->localhost:8899
+
+8. Open the dashboard of jenkins --> click on manage jenkins
+9. click on manage plugin--> go to available section
+10 Search for "Deploy to container" plugin-->install it
+11. Go to the dashboard of jenkins-->Go to the developemnt job we create--> click on configure
+12 Go to post build actions
+13. Click on add post build action
+14. Click on deploy war/ear to container.
+	war/ear files **/*.war
+	context path	qaenv
+	container	tomcat7   	add
+			username:
+			password:
+				that we entered in tomcat-users.xml file
+	tomcat url http://localhost:8899
+					apply/save
+
+This job will deploy the artifact created in the previous job into the tomcat server
+	
+We can see the deployed page by navigating to 
+	Http://localhost:8899/qaenv
+
+Step 4: continuous Testing
+
+Testing team will create some automation testing programs and upload them into the git hub, we should tell jenkins to download those programs and test the application which was deployed in step no.3
+1. Open the dashboard of Jenkins
+2. Click on New Item--> Enter item nas as Testing
+3. Go to source code management-->Select Git
+4. enter thhe github rul of testing project
+	https://github.com/selenium-saikrishna/FunctionalTesting.git
+5. This testing repository contains a jar file called/testing.jar.  we can execute this jar using "java -ja testing.jar" and it will run the testing 	programs
+6. go to build sections--?click on add build step
+7. click on execute windows batch commmand
+8. Java -jar testing.jar
+9. Apply-->save
+10. Go to the dashboard of jenkins and run the Testing job.
+
+Linking Development job and Testing job
+
+the development job and testing job should be linked with each other so that once the development job is over it immediately start the testing job
+1. Go to the dashboard of Jenkins
+2. Go to the Development job-->click on configure
+3. go to post build action-->click on build other job
+4. Enter job name as Testing
+5. apply-->save.
+
+
+
+Step 5 (continuous Delivery)
+The artifact created in the Development job should be sent to the Testing job so that Testing job can deliver that artifact into the prod servers.
+
+1. Open the dashboard of jenkins
+2. Click on manage jenkins--> Manage jenkins
+3. go to available section--?search for "Copy artifact" plugin --> install it
+4. Go to dashboard of jenkins
+5. Go to Development job
+6. Click on configure--.go to post build action
+7 click on Add post build action
+8 Click on Archive the artifacts
+9 Enter files to be archived as **/*.war
+10 Click on Apply/save
+11. go to the dashboard of jenkins--. go to he Testing job
+12 Click on configure-->go to build section
+13 click on copy artifacts from another project
+14 enter project name as development
+Note: The artifact copied from Development job should now be dpoloyed into prodserver
+15 go to post build actions
+16 click on add post build action
+17 Deploy war/ear to container
+
+
+war/ear files **/*.war
+context path prodenv
+container	tomcat7
+		credentials admin
+		tomcat URL http://localhost:8899
+
+		apply/save
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
