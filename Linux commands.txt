@@ -1,0 +1,30 @@
+find and replace:
+
+:%s/old/new/g|x
+
+
+sed -i -e 's/old/new/g' file1
+==============================
+
+To see list of users in Linux:
+===============================
+All fields are separated by a colon (:) symbol. Total seven fields exists. The first field is username. It is used when user logs in. It should be between 1 and 32 characters in length.
+How to only List user names on Linux
+To list only usernames type the following awk command:
+$ awk -F':' '{ print $1}' /etc/passwd
+
+Another option is to use the cut command:
+$ cut -d: -f1 /etc/passwd
+
+Say hello to getent command
+To get a list of all Linux users you type the following command:
+$ getent passwd
+$ getent passwd | grep tom
+
+$ compgen -u
+
+	1y(Lk4Jg@(P@
+
+
+
+

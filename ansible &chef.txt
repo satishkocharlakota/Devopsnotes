@@ -1,0 +1,422 @@
+Date: 27-02-2018
+
+Error Handling:
+
+If a certain section of code in playbook does not work we can make ansible to execute another section of playbook.  this can be manage using block and rescue keywords. If the code is present in block section fails then only it will come into the rescue section.
+always section can be use when we want some functionality to be executed always.
+
+vim playbook22.yml
+
+---
+- name: error handling
+  hosts: 192.168.60.23
+  tasks:
+   - block:
+      - name: Installing apache
+        apt:
+         name: apache1
+         state: present
+     rescue:
+      - debug:
+         msg: "unable to install apache"
+     always:
+      - debug:
+         msg: "continue with other modules"
+...
+
+
+Installing docker on all managed nodes:
+
+
+---
+- name: installing docker on all the managed hosts
+  hosts: all
+  become: yes
+  tasks: 
+   - name: download the docker script
+     shell: curl -fsSL get.docker.com -o get-docker.sh
+   - name: run the shell script
+     shell: sh get-docker.sh
+... 
+
+
+
+to execute a playbook step by step  by taking permission from us at every step we can use --step option.
+1
+command: ansible-playbook playbooks2.yml --step -b
+
+
+dryrun:
+
+in dry run the con            remote seervers instead it will check whether these configureation can be performed or not. This can be given giving --check option
+
+ansible-playbook playbooks2.yml --check -b
+
+
+to find the list of tasks present in playbook : we can use this command
+
+ansible-playbook playbooks2.yml --list-tasks
+
+
+02-03-2018
+
+Roles in Ansible:
+
+roles are used in ansible to make the code reusable. The make the code moduler.
+Ex: if we create a role called apache2 whatever is necessary for configuring apache2 should be specified in that role.
+which includes the configuration files that are required, the variables, the tasks to be performed etc.
+
+Folder structure in roles:
+
+Defaults: this stores the data about the application. Default variables are stored here.
+
+Files: static files are stored here i.e.,  (the file that should be copied into the managed hosts)
+
+Handlers: events to be trib=ggered based on some other successful event or task.
+
+Meta: additional info about the role, the author who created, supported, platforms on which this role will work etc.
+
+Tasks: core logic or the actual action that is to be performed
+
+Templates: used for handling dynamic files.
+
+Vars: variables of the highest priority are stored here.
+
+Defaults folder where the roles are created:
+
+/etc/ansible/roles
+
+
+create a role called apache2:
+
+cd/etc/ansible
+ls -l should see a folder called roles
+cd roles
+ansible-galaxy init apache --offline
+
+steps:
+
+cd tasks
+
+vim main.yml
+- include: install.yml
+  include: install.yml
+  include: service.yml
+
+:wq
+
+vim install.yml
+
+---
+installing apache2
+
+- name: install apache2
+  apt:
+   name: apache2
+   state: present
+:wq
+
+vim configure.yml
+
+cofiguring apache2
+- name: send index.html
+  copy:
+   src: index.html
+   dest: /var/www/html/index.html
+ notify:
+  - restart_apache2
+:wq
+
+vim service.yml
+
+#start apache2
+- name: start apache2
+  service:
+   name: apache2
+   state: started
+
+:wq
+
+
+come out of the tasks dir
+cd ..
+
+go into the files dir
+cd files
+
+sudo vim index.html
+<html>
+<h1> Welcome to intelliq Home Page </h1>
+</html>
+:wq
+
+
+
+come out of files directory..
+cd ..
+
+
+
+go to handler directory
+cd handlers
+
+sudo vim main.yml
+
+- name: restart_apache2
+  service:
+   name: apache2
+   state: restarted
+
+:wq
+
+cd /etc/ansible
+vim roleplaybook.yml
+---
+- hosts: all
+  roles:
+   - apache
+:wq
+
+ansible-playbook rolepalybook.yml -b
+
+
+
+
+chef:;
+
+
+05-03-2018
+
+
+Chef:
+This is also  a configraation management tool like ansible but it is created using ruby.
+The main machine where chef is installed is called as chef server and the remote machines are called managed nodes/hosts.
+
+Setup of Chef:
+
+1. open AWS Console create CENTOS instance.
+2. Name it chef-server
+3. open terminal in this chef server.
+4.. curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P chefdk -c stable -v 0.18.30
+
+TO check if chef is installed or not
+chef --version.
+
+Resource:
+
+This is similar to modules in ansible.
+A resource is a statement of configuration policy. It describes the desired state of an element and it also specifies the step that are needed to bring the server to that desired state  Resources are created using a scripting language called Ruby.
+
+Ex:
+
+File resource: used for managing files:
+
+create a chef resource for using file resource and creating a sample txt file
+mkdir resources
+cd resources
+vi sample1.rb
+
+file '/home/centos/resources/hello.text' do
+	content "Hellow Intelliq \n"
+end
+
+
+To run the above resource on the chef server itself 
+
+sudo chef-client --local-mode sample1.rb
+
+Note: By default chef executes the resources on the remote managed hosts. But --local-mode will bypass that behaviour and make chef work on the chef-server itself.
+
+create chef resource for creating a file changing the permission, onwership, groupownership etc.
+
+vim sample2.rb
+
+file '/home/centos/resources/hello.txt' do
+        content "Hello Intelliq\n"
+        mode '777'
+        owner 'centos'
+        group 'root'
+end
+
+To run the above resource
+
+sudo chef-client --local-mode sample2.rb
+
+Create a chef resource for installing tree and httpd:
+
+vim sample3.rb
+
+package 'tree' do
+ action :install
+
+end
+package 'httpd' do
+ action :install
+end
+
+to run the above resource 
+sudo chef-client --local-mode sample3.rb
+
+
+
+chef-client:
+
+ This is an agent that runs locally on every managed node that is being controlled by chef. When a chef client is executed it will perform all the steps that are required to bring the node into the desired state.
+
+Chef is an executable program that allows us to create cookbooks and also cookbook related components.
+
+version controlling using chef and git
+
+create a chef resource for installing git
+
+vim sample4.rb
+
+
+package 'git' do
+     action :install
+end
+
+runt the above resource and install the git with following commnad:
+
+sudo chef-client --local-mode sample4.rb
+
+
+06-03-2018
+
+
+The file resource uses an argument called action. The default action is to create files but we can also specify action for deleting files.
+create a chef resource for creating a file and deleting a file.
+
+vim sample5.rb
+
+file '/home/centos/sample.txt' do
+	content "Welcome to Intelliq \n"
+	action :create
+end
+
+file '/home/centos/sample.txt' do
+	action :delete
+end
+
+
+
+:wq
+
+
+directory resource can be used for creating directory and also changing ownership, permission etc.
+
+creating a chef resource for creating a directory and within directory create a file.
+
+vim sample6.rb
+
+directory '/home/centos/dire1/dir2/dir3' do
+	action :create
+	owner 'root'
+	group 'centos'
+	mode '777'
+	recurseive true
+end
+
+file '/home/centos/dir1/dir2/dir3/file1' do
+	action :create
+	content "welcome page \n"
+end
+
+to execute above resource
+sudo chef-client --local-mode sample6.rb
+
+
+
+git resource is used for performing version controlling through git
+
+
+create a chef resource for downloading the code from the git remote repository
+
+vim sample7.rb
+
+git '/home/centos/mygit' do
+	reposityory "https://github.com/selenium-saikrishna/testing.git"
+	reference "master"
+	action :sync
+end
+
+to execute this resource
+
+sudo chef-client --local-mode sample7.rb
+
+
+
+user resource is used for creating users assigning them user IDs passwords etc.
+
+create a resource for user creation.
+
+vim sample8.rb
+
+user 'Anu' do
+	comment 'A random user'
+	uid '1234'
+	home '/home/Anu'
+	shell '/bin/bash'
+	password 'intelliq'
+
+end
+
+
+to execute this resource
+
+sudo chef-client --local-mode sample8.rb
+
+
+create a chef resourc for installing upgrading and deleting packages.
+
+vim sample9.rb
+
+package ['httpd', 'vsftpd'] do
+	action :install
+end
+package ['httpd', 'vsftpd'] do
+	action :upgrad
+end
+
+package ['httpd', 'vsftpd'] do
+	action :remove 
+end
+
+to execute this resource
+
+sudo chef-client --local-mode sample9.rb
+
+service resource is used for starting, stopping, enabling, disabling services.
+
+creat chef resource for enabling and starting httpd
+
+service 'httpd' do
+action [:enable, :start]
+end
+
+
+08-03-2018
+
+Implementing if condition in chef:
+this can be done using not_if or only_if:
+
+create a file if /etc/passwd file is not present:
+
+file '/home/centos/newfile.txt' do
+	action :create
+	content "This file is created if passwd file is not present"
+	mode '777'
+
+not_if do
+	file.exists?('/etc/passwd')
+end
+end
+
+
+
+
+
+
+
+
+
