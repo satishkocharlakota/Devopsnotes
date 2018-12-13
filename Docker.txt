@@ -1,0 +1,1461 @@
+
+Docker :
+
+Docker is a containerization platform which helps us to provide process isolation.
+
+Virtualisation:
+
+This is a technology for runining multiple operating system on one single host operating system.
+
+On the host os we install a software called hypervisor. This hypervisor allows us to install guest operating systems.  On the guest OS we can install the application that we require.
+HW resources are shared between each operating system.
+
+The disadvantage of virtualisation is the applications runnning in guest OS should pass through multiple layers in order to acces the hardware resources.
+
+
+
+Containerisation:
+
+In containersation we donot have any hypervisor software in its place we install a Docker engine.
+On the Docker engine we can directly run the applications as individual containers. These container has to pass through less number of layers in order to access the hardware resources.
+The Docker engine also effectively maintains  the distribution of hardware resources. ie., if a container requires more amount RAM, CPU, and some other container using less amount of RAM and CPU
+Docker engine will automatically distribute more hardware resources to the container which requires.
+
+Installing Docker on Windows:
+
+1. Open https://docs.docker.com/install
+2. Go to desktop editions
+3. click on Docker for windows
+4. Go to stable channel and click on get docker for windows (stable)
+5. Install it.
+	Note: Docker on windows activates an application called hyperV.  Once this application is activated it will not allow virtualisation software (vmware, oracle virtual box etc) to run.
+
+
+Installing docker on Linux:
+
+1. Open get.docker.com
+2. copy the first 2 commands and paste in linux terminal.
+
+	curl -fsSL get.docker.com -o get-docker.sh
+	sh get-docker.sh
+
+
+
+Docker images:
+
+A docker image contains the necessary binaries and libraries which are necessary for an application
+A running instance of image called as containers
+
+Docker architecture
+
+This is the terminal where we execute docker commands
+
+Docker Host:  This is the machine where docker is installed.
+
+Docker Deamon : This is a background process of docker which is responcible for executing the docker commands
+
+Docker Registry: this is cloud site of docker where all the docker images are present.
+	This registries are two types :
+	Public Registry : hub.docker.com
+	Private Registry : Specific for our organisation
+
+
+05-02-2018
+
+Docker commands :
+
+To pull docker images 
+docker pull imagename
+
+To see the list of docker images present in our docker host
+docker images or 
+docker images ls
+
+To delete a docker image
+docker rmi imagename
+
+To start an image as a container
+docker run imagename
+
+Run command options:
+
+-d runs the docker container as a deamon. i.e., it runs in detached mode in the background.
+--name used for  giving a name for the docker container
+-p used for port mapping
+	Ex: 8080:80 external port of the docker host  8080 is mapped iwth internal port 80 of the container
+-v used for attaching volumes to containers
+-rm used to remove the containers on exit of the container.
+-it used for opening an interactive terminal in the container where we can fire linux commands.
+-p used for publishing the port numbers. When we donot do port mapping docker performs portmapping it will mapp the internal port of the container with a external port of the docker host.  this external port will be some number greater than 30000.
+-e used to pass environment variables to the docker container.
+-a usded for attaching the STDIN  and STDOUT to container.
+--network used for attaching a specific network to the container.
+
+Note : run command start the image as a container. If the image is already present in the docker host else it will pull the image from hub.docker.com and then start it as a container.
+
+	To stop container:
+docker stop containername/containerid
+
+to remove a stopped container
+docker rm containername/containerid
+
+to remove a running container
+docker rm -f containername/containerid
+
+to restart a container
+docker restart containername/containerid
+
+to restart after 10 seconds
+docker restart -t 10 containername/containerid
+
+to get into a container which is already running 
+docker exec -it containername/containerid bash
+
+to get into a container which already has a shell opened in it
+docker attach containername/containerid
+
+to see the ports of the container
+docker port containername/containerid
+
+to see the list of all running container
+docker container ls
+
+to see the list of all containers (running and stopped)
+docker ps -a
+
+to inspect a container
+docker inspect containername/containerid
+The above command will show the complete info about the docker container in JSON file format.
+
+to creat a new network
+docker network create networkname
+
+to find the list of all the docker networks
+docker network ls
+
+to find detailed info about a network
+docker network inspect containername/containerid
+
+to connect a container to network
+docker network connect networkname/networkid containername/containerid
+
+to disconnect a container from a network
+docker network disconnect networkname/networkid containername/containerid
+
+to display the logs of a container
+docker logs containername/containerid
+
+to display the last 100 logs of a container
+docker logs -tail 100 containername/containerid
+
+to find information about docker installation
+docker --version
+docker info
+
+to push a docker image into docker hub
+docer push imagename
+
+to rename a local image
+docker tag original-image-name new-iamge-name
+
+to build an image from docker file
+docker build -t imagename.
+note . represents current working directory
+
+scenario :
+
+1. start nginx as a container, run it in detached mode and do port mapping between external post 8080 of the docker host and internal port 80 of the container.
+
+	
+	docker run -d --name webserver -p 8080:80 nginx
+
+scenario :
+
+2. start httpd as a container in detached mode and publish the port numbers
+
+	docker run -P -d --name mywebserver httpd
+
+to check the port number:
+
+	docker container ls
+
+scenario :
+
+3. Start mysql as a container and create a some tables in it.
+
+	docker run -d --name mydb -e MYSQL_ROOT_PASSWORD-intelliq mysql
+
+docker exec -it mydb bash
+In the container to login into mysql prompt
+mysql -u root -p
+enter password
+
+In mysql prompt
+show databases;
+To switch into a database
+use sys;
+
+Create some table using the code from teh below page
+https://justinsomnia.org/2009/04/the-emp-and-dept-tables-or-mysql/
+
+
+
+To stop all the running containers:
+docker stop $(docker ps -aq)
+
+to remove all the stopped containers
+docker rm $(docker ps -aq)
+
+to remove all the containers (stopped and running)
+docker rm -f $(docker ps -aq)
+
+
+05-02-2018
+
+Scena0rio 4
+
+Download ubuntu image and start it as a container
+
+install some packages in it
+Exit from the container and remove it
+Start the container from the same image and we will find all the packages that we installed previously are lost.
+Now start ubuntu as a container again, install some packages but save the container snapshot as an image.
+
+docker run -it --name myubutu ubuntu
+In the container
+apt-get update
+apt-get install -y git maven tree
+exit
+docker stop myubuntu
+docker rm myubuntu
+
+
+
+start the container again
+docker run -it --myubuntu ubuntu
+we will find the packages no longer installed
+Install them again
+apt-get update
+apt-get install -y git maven tree
+exit
+save the container an image
+dockercommit myubuntu git-tree-maven-ubuntu
+
+a new image gets created which will contain all the previously installed softwares.  If we start it as a container we will find all the softwares 
+docker run -it git-tree-maven-ubuntu
+
+Step 1
+
+Sign up for an account in hub.docker.com
+
+To login into that account from docker host
+
+docker login
+Enter username and password
+
+Customise a alpine linux image and save it as a snapshot. (image). Push it into docker hub.
+docker run -it -name myalpine alpine
+
+In the alpine linux box install some packages
+apk update
+apk add tree
+exit
+
+docker commit myalpine intelliqit/myalpine
+to push this image into docker hub
+docker push intelliqit/myalpine
+
+
+
+Working on docker local registry
+
+Instead of pushing the docker images into the public registry(hu.docker.com) we can create a private registry and send the docker images into it.  This local registry can be access only the team members.  To create a local registry we should first download a docker image called registry and start it as a container
+
+
+Scenario 5 
+
+Download alpine and push into local registry
+docker pull alpine
+docker run --name intelliq-registry -p 5000:5000 -d registry
+
+To save any image into this local registry we shlould first tag it
+docker tag alpine localhost:5000/alpine
+To push
+docker push localhost:5000/alpine
+
+
+
+Linking of docker containers
+
+Multiple docker containers can be linked with each other using the following 2 ways
+1. using --link option
+2. using docker networking 
+
+Scenario _6
+
+Create 2 busybox container c1 and c2. Link c2 with c1
+once the containers are link we  shlould be able to ping between them.
+
+docker run -it --name c1 busybox
+come out of the c1 container without exit (ctrl+p, ctrl+q)
+docker run -it --name c2 --link c1:c1-alias busybox 
+In the c2 container
+ping c1
+
+
+docker inspect c2
+
+
+
+
+
+
+07-02-2018:
+
+Creating Dev environment with docker:
+
+using the links concept we can connect multiple containers with each other.and create the architecture that is required for the development team.
+
+Scenario - 7
+
+create a mysql container and link with wordpress container. We should be able to create a sample wordpress website once this link is done.
+
+1. start mysql as a container
+	docker run -d --name intelliq-mysql -e MYSQL_ROOT_PASSWORD=intelliq mysql
+
+2. Start wordpress as a container and link with mysqldb container
+	docker run -p 9999:80 --name intelliq-wordpress --link intelliq-mysql:mysql -d wordpress
+
+3. launch any browser
+	navigate to ip adress of dockerhost:9999
+
+4. create a sample website.
+
+
+Creating QA environment with docker:
+
+
+Start a selenium hub conainer
+Start ubuntu container with chrome installed and link with selenium hub container
+start ubuntu container with firefox installed and link with selenium hub container.
+
+
+1. Start a selenium hub conainer 
+	docker run -P -d --name selenium-hub selenium/hub
+2. Start ubuntu container with chrome installed and link with selenium hub container
+	docker run -d -P --link selenium-hub:hub selenium/node-chrome-debug
+3. Start ubuntu container with firefox installed and link with selenium hub container
+	docker run -d -P --link selenium-hub:hub selenium/node-firefox-debug
+
+or
+
+scenario:
+
+creating QA env with docker
+start a selenium hub container and 2 node containers
+one node will have firefox preinstalled on it and another will have chrome preinstalled on it.
+link these 2 nodes with the selenium hub container
+
+1. start selenium hub conainer
+	docker run --name selenium-hub -d -p 4444:4444 selenium/hub
+
+2. start firefox node container
+	docker run --link selenium-hub:hub -d --name firefox -p 7777:5900 selenium/node-firefox-debug
+
+3. start chrome node container
+	docker run --link selenium-hub:hub -d --name chrome -p 6666:5900 selenium/node-chrome-debug
+
+4. To see the gui of these containers
+	download and install vnc viewer
+	open vnc viewer
+	ipaddress-of-dockerhost:6666
+	ipaddress-of-dockerhosts:7777
+
+5. Run the selenium testing program
+
+
+
+
+
+Scenario :8
+
+Creating CI-CD setup for implementing jenkins
+1. Start a jenkins container
+	docker run - 8080:8080 -p 50000:50000 --name jenkinsserver -d jenkins
+
+2. start a tomcat container and name it qa server.. link with jenkins server
+	docker run --name qaserver --link jenkinsserver:jenkins -p 8888:8080 tomcat
+
+3. start a tomcat container and name it prod server.. link with jenkins server
+	server run --name prodserver --link jenkinserver:jenkins -p 9999:8080 tomcat
+
+
+Date: 08-02-2018
+
+Docker compose:
+This is used for creating the docker microservices architecture. When we  want  to start multiple container and link them with each other we can either give docker adhoc commands i.e., individual commands for starting each container and for linking them or we can use docker compose.
+Docker compose use s yml files that store infor about the docker microservices architecture.
+Using this compose file it is easy to start or stop multiple containers.
+Installation of docker compose.:
+1.	Open  https://docs.docker.com/compose/install/#install-compose
+2.	2. Got linux section and copy the two commands
+
+
+1.	Create Development environment with docker compose if link mysql container with wordpress container
+Vim docker-compose.yml
+Version: ‘3’
+Services:
+	Intelliq-mysql:
+	Image: mysql
+	Environment:
+		MYSQL_ROOT_PASSWORD: intelliq
+	Intelliq-wordpress:
+	Image:wordpress
+	Ports:
+-	8888:80
+
+Create QA environment via docker compose:
+Start selenium hub container and link it with firefox and chrome nodes.
+Vim  docker-copose.yml
+Version: ‘3”
+Services:
+	Selenium-hub:
+Image: selenium/hub
+Ports:
+-	4444:4444
+Firefox:
+Image: selenium/node-firefox-debug
+Links:
+-	Selenium-hub
+Chrome:
+Image: selenium/node-chrome-debug
+Links:
+-	Selenium-hub
+Implement CI-CI with docker compose
+
+Create a Jenkins container
+Start 2 tomcat containers
+Call one as qa server and another one as prod server
+Link qa server and prod server with Jenkins server
+Step : vim docker -copose.yml
+Go to insert mode
+Version: ‘3’
+Services:
+  Jenkinsserver:
+   Image: Jenkins
+   Port :
+-	 5555:8080
+Qaserver:
+Image: tomcat
+Ports:
+-	6666:8080
+Links :
+-	Jenkinsserver
+Prodserver:
+  Image: tomcat
+  Ports:
+-	7777:8080
+Links:
+-	Jenkinsserver
+
+
+
+Date: 09-02-2018
+
+Data Volumes: Whenever docker containers are destroyed the data created by those containers is also lost. To preserve the data we can use data volumes.
+
+Data volumes are classified into 2 types.
+1.Simple data volumes
+2.Data volume containers
+
+Simple Data volumes: create a folder called /volume and mount it into an Ubuntu container. In the container created some files in the volume mount point.
+Remove the container and delete it.
+Still we should be able to access the data
+
+Steps:
+1.Create a directlroy
+	Mkdir /volume
+2.Create a docker container and mount /volume on it
+      Docker run –it –name myubuntu –v /volume Ubuntu
+3.In the container go into volume folder
+       cd volume
+4.Create some files
+	Touch file1 file2 file3
+5.Exit from the container
+	Exit
+
+6.To find the locations where the mounted data is stored 
+	docker inspect myubuntu 
+
+In the JSON output that is generated from the above command search for mounts and copy the path where the mount point got created.
+7.Stop and remove the container
+	Docker stop myubuntu
+	Docker rm myubuntu
+
+8.	Change director to the location that we copied from json output and we will see all the files created by the container.
+
+Data volume containers
+
+If we want  to share the data volume of one container with other containers then we can use data volume containers.
+
+1.	Create an empty directory
+Mkdir /data
+2.	Start and Ubuntu container and mount the above created directory as a volume
+Docker run –it –name container1 –v /data Ubuntu
+3.	In the container cd to data foler and create some files
+Cd data
+Touch file1 file2
+
+4.	Come out of the container without exit (ctrl+p, ctrol+q)
+5.	Create another Ubuntu container and this container should use the volume of container1
+Docker run –it –name container2 –volumes-from container1 ubuntu
+
+In container 2 cd to data foler
+Create some files 
+Cd dta
+Touch file3 file4
+6.	Come out of the container without exit (ctrl+p, ctrol+q)
+7.	Create another Ubuntu container and this container should use the volume of container2
+Docker run –it –name container3 –volumes-from container2 ubuntu
+
+In container 3 cd to data foler
+Create some files
+Cd data
+Touch file5 file6
+8.	Come out of the container without exit (ctrl+p, ctrol+q)
+9.	since all the containers have used the same data volume we can go into any container and we will find all the files present.
+
+
+Docker Networking:
+
+Docker uses the following networks:
+1.	Bridge network
+2.	Host only network
+3.	Null or none network
+4.	Overlay network
+
+Bridge network is the default network of the containers running a sinle docker host.
+
+Host only network is used when we want the container to communicate only with the docker hosts.
+
+Null network is used to create an isolated container which cannot communicate with any other containers.
+
+Overlay network is used when docker containers are running in a distributed environment. i.e., they are running on different docker hosts.
+
+To find the list of docker networks.
+
+Docker network ls
+
+To create a new network
+Docker network create networkname
+
+To delete an existing network
+Docker network rm networkname/networked
+
+To statrt a container on a specific network 
+Use –network option in the run command
+
+To connect a running container to a network
+Docker network connect networkname/networked  containername/container id
+
+To disconnect a running container to a network
+Docker network disconnect networkname/networked  containername/containerid
+
+To find detailed info about any network
+Docker inspect intworkname/networked
+
+
+Create 2 docker networks intelliq1, intelliq2
+Create 3 busybox containers c1, c2,c3
+Start c1 and c2 on intelliq1 network
+Start c3 on intelliq2 network
+
+C1 and c2 should be able to ping to each other but bot c3, now attach c2 to intelliq2 network i.e., c2 is now present on both intelliq1 and intelliq2 networks.
+So, c2 should be able to ping to both c1 and c3 but  c1 and c3 should not  ping to each other directly.
+
+1.	Create 2 networks
+Docker network create intelliq1
+ Docker network create intelliq2
+
+2.	Create a busy box container on intelliq1 network
+Docker run –it –name c1 –network intelliq1 busybox
+
+3.	Comeout of the container without exit (ctrl+p, ctrl+q)
+4.	Docker inspect container1
+From the above output capture the ipdddress of c1
+
+5.	Create another busybox container on intelliq1 network 
+Docker run –it –name c2 –network intelliq1 busybox
+
+6.	In the c2 container
+Ping ipaddress-of-c1 (it should ping)
+
+7.	Comeout of the container without exit (ctrl+p, ctrl+q)
+
+8.	Docker inspect container2
+From the above output capture the ipdddress of c2
+
+9.	Create another container on the intelliq2 network
+Docker run –it  --name c3 –network intelliq1 busybox
+In the container
+Ping ipaddress-of-container1
+Ping ipaddress -of container2
+It should ot ping
+
+10.	Comeout of the container without exit (ctrl+p, ctrl+q)
+11.	Docker inspect container3
+From the above output capture the ipaddress of c3
+
+12.	Now attach container2 to intelliq2 network
+Docker network connect intelliq2 container2
+13.	Go into container2
+Docker attach container2
+Ping ipaddress of container1
+Ping ipaddress of container3
+It should ping
+
+
+
+
+
+Date: 10-02-2018
+
+Docker file : to create our own images
+Docker images can be created using a file, which is called as docker file. I t uses special keywords which come from docker syntax
+
+Important keywords used in docker file
+	
+FROM:
+ Used to specify base image based on which we will create our docker image
+
+MAINTAINER:
+Used to represent author of docker file
+
+CMD 
+
+Execute default linux command whenever container is started from this image.
+ENTRYPOINT :
+
+Used to pass arguments to the CMD.
+
+
+RUN:
+This used for package management i.e, installing and uninstalling packages in the container.
+
+Expose:
+
+Used for port mapping i.e, it will map the external port for docker host with some intenal docker container
+
+User:
+This is used to specify with what user should login into the container
+
+
+Volume: 
+Used for attaching volumes to the docker container
+
+ENV :
+ used for passing the environment variable to the docker container.
+
+
+Docker files can use the above keywords in a special file called as the docker file
+
+Create a docker file based on busybox  image and execute the default command as date.
+Vim docker file
+FROM busybox
+MAINTAINER intelliq
+CMD [“date”]
+
+Save and quit
+
+To build and image above the docker file
+
+Docker build –t busybox1 .   (t stands for tag for any name)  . represents current working directory)
+
+Entrypoint:
+
+Create a docker file based on Ubuntu based image and this should display the content of /etc/passwd file whenever the container is started.
+
+Vim docker file
+FROM Ubuntu
+MAINTAINER intelliq
+ENTRYPOINT [ “/bin/cat”]
+CMD [“/ETC/PASSWD”]
+
+Save and quit
+
+To build an image from above docker build
+
+Docker build –t ubuntu1 .
+
+Create a docker file from Ubuntu based image  Update apt repository and install git
+
+Vim docker file
+
+FROM Ubuntu
+MAINTAINER intelliq
+RUN apt-get update
+RUN apt-get install –y git
+
+Save and quit
+Build an image from the above docker file
+
+Docker build –t Ubuntu  .
+
+When we start this image as container… git preinstalled.
+Docker run  --name myubuntu  –it ubuntu1
+
+Cache busting:
+
+Whenever we create images from docker file using the build commanddocker engine looks in the docker cache to check which instructions were executed in the previous builds and these instruction will not be executed again. Instead it will run only  the new instruction. The disadvantages of this process is we can endup having packages from an outdated repository.
+
+Ex: in the previous docker docker file we have updated  yum repository and installed git.
+Now if we add  some more run instruction for installing httpd, maven etc  it will install these packages from the yum repository that was updated in the previous build. To overcome this problem we can use cache busting using the && symbol in the run instructions.
+
+Create a docker file for installing various packages using cache busting:
+
+Vim docker file
+FROM centos
+MAINTAINER  intelliq
+RUN yum update –y && yum install –y git  httpd  vsftpd  maven
+
+
+
+Creat a docker file using Jenkins base image make the user of this container as root update apt repository install git and maven
+
+Vim docker file
+ 
+FROM Jenkins
+MAINTAINER intelliq
+USER root
+RUN apt-get update && apt-get install –y git maven.
+Save and quit
+
+Build an image from the docker file
+
+Docker build –t myjenkins  .
+
+Start a container using that image
+Docker run –d –name  j1  myjenkins
+
+Go into the shell of that container we will see root is the user git and maven are already installed.
+Docker exec  -it  j1 bash
+
+
+Date: 14-02-2018
+
+
+
+DOCKER SWARM :
+
+This is the feature of docker using whichwe can perform container orchestration . In a scenario where we want to run hundreds of containers in a distributed network  we can use docker swarm.
+
+Advantages of docker swarm:
+
+1.	It can be used for launching multiple containers from a docker image. All these containers can be running the same service.
+2.	Useful in performing healthchecks on containers.
+3.	Used in scalling the number of containers either up or down.
+4.	Can be used for performing  rolling updates on the services in this containes.
+
+Setup of docker swarm:
+
+Create a network of 3 linux vms either using  vagrant or aws cloud.
+Make the first machine as manager and the other machines as worker 1 and worker2
+Install docker on all these 3 machines.
+
+To initialize docker swarm goto the manager machine enter
+Docker swarm init –advertise-addr 10.10.10.11
+
+The above command make the current node as manager and in the output of this command
+It will show  the command for creating workers. Copy that command and paste it in the worker node.
+
+To list machines which present in the docker swarm:
+Docker node ls
+
+To create a service in the docker swarm we can use docker swarm create command
+Deploy the Nginx into docker swarm with 5 replicas and give it a name webserver.
+
+Docker service create –name webserver –p 80:80 –replicas 5 nginx
+
+To see the list of nodes on which this service is currently running.
+
+Docker service ps webserver
+
+To scale the service up or down
+
+Docker service scale webserver=10
+
+To remove a service from docker swarm
+
+Docker sevice rm webserver
+
+Scenario 2
+
+Create 3 replicas of redis service in the docker swarm and name it myredis
+Initially it should be working on redis 3.0.6 version.
+Upgrade redis from 3.0.6 to 3.0.7 and this update operation get reflects on docker hosts.
+
+Docker service create –name myredis –replicas 3 redis:3.0.6
+
+To see the list of nodes on which this my redis is running:
+
+Docker service ps myredis
+
+To update to 3.0.7 version
+
+Docker service update –image redis:3.0.7 myredis
+
+Docker service ps myredis
+
+To rollback myredis to the previous version:
+Docker service update –rolback myredis
+
+
+
+Create 3 replicas of mysql
+Go into the shell of mysql and create some tables
+
+Docker service create –name mydb –replicas 3 –e MYSQL_ROOT_PASSWORD=intelliq mysql
+
+
+
+
+
+16-02-2018
+
+To remove a node from the swarm the command is
+Docker swarm leave
+
+
+For a manager to leave the swarm:
+Docker swarm leave --force
+
+
+NAGIOS:
+
+Nagios is the server and network monitoring tool. Using nagious we can find the status of CPU utilization, RAM Utilization etc. of servers present in a network.
+
+Installing nagios
+
+Create 2 AWS  Ubuntu instances, with the security grougp HTTP, CUSTOM TCP, SSH, ALL ICMP V4, 
+Apt-get update
+Apt-get updrage
+Apt-get install nagios3
+To open Nagios in browser
+Ec2servername/nagios3
+
+Enter the username as nagiosadmin and password as as assigned.
+
+To add remote services/servers to Nagios we should edit the following files.
+
+Vi /etc/nagios3/Nagios.cfg
+
+Make 
+
+Check_external_commands=1
+
+Vi /etc/group
+Go to Nagios line and add www-data
+
+sudo chmod g+w /var/lib/nagios3/rw
+Sudo chmod g+w /var/lib/nagios3
+
+Sudo service apache2 restart
+Sudo service nagios3 restart
+
+
+Configuring hosts:
+
+External servers should be added to Nagios configuration file :
+
+Cd /etc/nagios3/conf.d
+
+Create a new file
+Vi newhost.cfg
+   Define host {
+Host_name ec2.hostname
+Alias store
+Address “ip address of ec2 instance”
+Max_check_attempts 3
+Check_period 2487
+Check_command check-host-alive
+Contacts root
+Notification_interval 60
+Notification_period 2487
+
+To start services
+Define service{
+	Use generic-service
+	Host_name “ec2 IP address”
+	Service_description    HTTP
+	Check_command check_http
+	}
+
+}
+
+:wq
+
+
+
+
+Date: 22-02-2018
+
+
+Creating setup for jenkins CI-CD :
+
+1. create a jenkins container
+2. create  2 tomcat containers and link with jenkins container
+
+creating jenkins container:
+docker run-p 8080:8080 -p 50000:50000 -d --name jenkinsserver jenkins
+
+creating qa server with tomcat container
+docker run --name qaserver --link jenkinsserver:jenkins -d -p 8888:8080  tomcat
+
+creating prod server with tomcat container
+docker run --name prodserver --link jenkinsserver:jenkins -d -p 9999:8080 tomcat
+
+
+docker compose:
+
+This is a tool of docker which is used for executing multiple docker services from one point of controll.  Using docker compose we can create a network of docker containers and link them with each other.
+
+installing docker compose:
+
+1. open 
+	: https://docs.docker.com/compose/install/#install-compose
+
+2.  sudo curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+
+3. sudo chmod +x /usr/local/bin/docker-compose
+
+4. to check if docker compose is installed or not 
+     docker-compose --version
+
+
+
+create a docker compose file for starting mysql and wordpress containers:
+vim docker-compose.yml
+
+version: '3'
+
+services:
+
+ intelliqmysql:
+  image: mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: intelliq
+
+ intelliqwordpress:
+  image: wordpress
+  ports:
+   - 6767:80
+
+
+to start all the service in the above yml file 
+docker-compose up -d
+
+to stop the services
+docker-compose stop
+
+
+creating testing environment with selenium hub servers with 2 node servers and link them with each other
+
+vim docker-compose.yml
+
+version: '3'
+services:
+
+ selenium-hub:
+  image: selenium/hub
+  ports:
+   - 4444:4444
+
+ firefox:
+  image: selenium/node-firefox-debug
+  links:
+   - selenium-hub
+
+ chrome:
+  image: selenium/node-chrome-debug
+  links:
+   - selenium-hub
+
+
+create a docker copose file for starting 3 containers
+1. jenkins
+2. tomcat
+
+we should be able implement ci-cd on these containers
+
+vim docker-compose.yml
+
+version: '3'
+services:
+ jenkinsserver:
+  image: jenkins
+  ports:
+   - 8888:8080
+  qaserver:
+   image: tomcat
+   ports:
+    - 6767:8080
+   links:
+    - jenkinsserver
+  prodserver:
+   image: tomcat
+   ports:
+    - 7787:8080
+   links:
+    - jenkinsserver
+
+docker-compose up
+
+Date: 23-02-2018
+
+Scenario: 
+
+start ubuntu as a container and install git in it
+exit from the container, and remove the ubuntu container
+start ubuntu again and we will see git is not present.
+
+Now install igt again
+and save this image as a snapshot
+when we start a container from this snapshot we should be able to see git present in ti.
+
+1. start ubuntu as a container
+	docker run --name myubuntu -it ubuntu
+2. install git in it
+ 	apt-get install -y git
+
+3. exit from the container and stop and reove the container 
+   exit
+   docker stop myubuntu
+   docke rm myubuntu
+
+4. start ubuntu again
+	docker run --name myubuntu -it ubuntu
+5. git will not be present
+   git --version
+6. install git again
+	apt-get update
+	apt-get install  -y git
+	exit
+7. save this as a new image
+	docker commit myubuntu git-ubuntu
+8. start a container from the above created image
+	doccker run --name ubuntu -it git-ubuntu
+9. check for git
+	git --version (git will be present)
+
+
+Create an ubuntu customised image and push into docker hub
+
+1. start ubuntu container
+	docker run --name myubuntu -it ubunut
+2. In the container install some softwares
+	apt-get install git
+	apt-get install maven
+	exit
+3. save the container as an image
+	docker commit myubuntu intelliq/ubuntu
+4. Open hub.docker .com --> signup for a free account
+5. docker login
+	 enter username and password of the dcoker account
+7. docker push intelliqit/ubuntu
+
+hub.docker.com is the public registry of docker. Images pushed into this public registry will be available  for everyone.  To create a private registry which can be access only from our organisation we should use docker image called registry
+
+
+Create a docker local registry and push alpine iage into it
+
+1. start docker registry
+	docker run -p 5000:5000 --name intelliqregistry registry
+	
+Note: registry is an image available in docke hub.  Wehn we start this image as a container it will work as a local registry
+
+2. pull alpine linux
+	docker pull alpine
+
+3. push an image into local registry we should first tag it
+
+	 docker tag alpine  localhost:5000/alpine
+
+4. docker push localhost:5000/alpine 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+26-02-2018
+
+Data volumes:
+
+Docker containers are temporary in nature. Whenever a container is removed all the data stored in container will be lost. if we want to save the data separate from the container we can use a concept called volumes. these volumes can be mounted on the docker containers and even after removing the container we will see that data stored in volume will remained.
+
+Data volumes are of 2 types:
+
+simple data volume: Simple data volumes can be used only by one container. It is not possible to share this volume with other containers.
+Data volume container:	 Data volume containers on the other hand can be shared between multiple containers.
+
+Simple data voluems:  Creat a empty foler called /data
+
+statrt an ubuntu container and mount the /data directory into this container. in the container go into this mounted directory and create some files,  exit from the container, remove the container. we should still find the files that we created in the mounted volume.	
+ 
+1. creating empty dir
+ 	mkdir /data
+2. Start ubuntu container and mount the above folder as volume
+	docker run -it --name myubuntu -v /data ubuntu
+3. In the myubuntu container
+	cd data
+	create some files 
+	touch file1 file2 file3
+4. Exit from the container
+	exit
+5. To find the location where the mounted files are stored 
+	docker inspect myubuntu
+	in the    JSON output search for MOUNTS and copy the source path . This is the physical location on the docker host where the files are actually stored.
+
+6. Remove the container
+	docker rm -f $(docker ps -aq)
+7. change dir to the location that we copied from source in JSON output.  We will find all the files created by the container even though the container is deleted.
+
+
+
+Docker container volumes: The volume used by one container can be shared with other containers using --voumes-from
+
+create 3 ubuntu containers c1,c2 and c3
+mount /data as a volume in the c1 container
+in this container /data folder create some files
+exit from the container
+share this volume with another ubuntu container called c2
+and share the volume used by c2 with another container called c3
+
+
+1. start ubuntu as container and mount a volume 
+	docker run -it --name c1 -v /data ubuntu
+2. In the c1 container
+	cd data
+	touch file1 file2
+	exit
+3. start another ubuntu container c2 and it should use the data volume of c1
+	docker run --name c2 -it --volumes-from c1 ubuntu
+4. In the c2 container
+	cd data
+	touch file3 file4
+	exit
+5. Start another ubuntu container c3 and it should use the data volume of c2
+	docker run --name c3 -it --volumes-from c2 ubuntu
+6.In the c3 container
+	cd data
+	touch file5 file6
+	exit
+7. Remove all the containers and still we will have the files 
+	docker rm -f $(docker ps -aq)
+
+
+Docker networking:
+
+
+Docker uses the following 4 types of networks for container to communicate with each other.
+1. Bridge network
+2. Host only network
+3. null network
+4. overlay network
+
+Bridge network is used between containers running on the same docker host.
+Host only network is used when we want a container to communicate only with the host machine and not with any other docker containers.
+Null network is used when we want to created isolated container which does not communicate with other container or with the docker host.
+
+Overlay network is used when we have a docker containers running on multiple docker hosts in a  distributed environment. 
+
+To create a docker network
+	docker network create networkname
+to remove a network
+	docker network rm networkname/networkid
+to connect a container to network
+	docker network connect networkname/networkid container name/containerid
+to disconnect container  from a network
+	docker network disconnect networkname/networkid container name/containerid
+to find the list of networks available
+	docker network ls
+to find detailed ifo about a network
+	docker network inspect networkname/networkid
+
+Create 2 docker networks intelliq1 and intelliq2
+create 3 busy box containers c1 c2 c3
+c1, c2 should run on intelliq1 network
+c3 should run on intelliq2 network
+
+conainers present in same network should be able ping each other and containers present in the different network should not ping.
+now attach attach c2 to intelliq2 network. Because c2 present in both intelliq1 and intelliq2 networks it should ping both c1 and c3
+
+
+To find detailed info about a network
+	docker network inspect networkname/networkid
+1. create 2 networkds
+	docker network create intelliq1
+	docker network create intelliq2
+2. To see the list of networks created
+	docker networks ls
+3. start two busybox containers on intelliq1 network
+	docker run -it --name c1 --network intelliq1 busybox
+	come out of container without exit (ctrl+p), ctrl+q)
+	Find the ipd address of c1
+	docker inspect c1
+	docker run -it --name c2 --network intelliq1 busybox
+	in container2
+	ping ipaddress of container1 (it should ping)
+
+4. come out of container without exit (ctrl+p ctrl+q)
+5. start another busybox container but this tie on intelliq2 network
+	docker run -it --name c3 --netork intelliq2 busybox
+	
+	in container3
+	ping ipaddress of container1
+	ping ipaddress of container2(it should nt ping in the above two cases)
+
+6. connect container2 to intelliq2 network also
+	docker network connect intelliq2 c2
+7. go into container2
+	docker attach container2
+	ping ipaddress of c1
+	ping ipaddress of c3 (it should ping in both the above cases as c2 is now present in both intelliq1 andintelliq2 networks)
+
+
+27-02-2018
+
+
+docker swarm:
+
+this is the feature of docker using which we can perform  container archestration.
+In a scenario where we want to run hundreds of containers on multiple docker hosts we can use docker swarm.
+
+Advantages of swarm:
+
+1. useful in launching fixed number of containers for a particular docker image.
+2. Can be used to perform health checks on containers.
+3. used in containers scaling up or down.
+4. useful for perform rolling update on containers.
+
+ setup of docker swarm:
+
+1. Create 3 ubuntu machines and install docker on all of them. 1st machine will work as a manager and remaining machines called as workers. manager will distribute the load between the worker machines.
+
+To initiate the docker swarm... go to the manager machine ->  docker swarm init --advertise-addr 10.10.11.11 (manager node)
+
+to add workers to the docker swarm copy the command that is generated as output of the above command and execute in the worker nodes.
+
+To see the list of manager and workers currently present in the swarm:
+docker node ls
+
+creating services in the swarm:
+
+1. Create an Ngnix service and create 5 replicas of Nginx.
+
+in manager node execute this command
+
+docker service create --replicas 5 -p 80:80 --name webserver nginx
+
+to see the list of container on which the service is running:
+docker service ps webserver
+
+To scale the number of containers to the service either up or down:
+docker service scale webserver=8
+	
+to remove a service from the swarm:
+docker service rm webserver
+
+create 3 replicas of redis 3.0.6 and name it mydb
+docker service create --name mydb --replicas 3 redis:3.0.6
+
+to upgrade myredis from 3.0.6 to  3.0.7 :
+
+docker service update --image redis:3.0.7 mydb
+
+to roll back of previous version of redis:
+docker service update --rollback mydb
+
+the manager can remove a worker node from the docker swarm using this commad:
+docker node update --availability drain worker1
+
+for the manager to make the worker rejoin:
+docker node update --availability active worker1
+
+for a worker to leave a swarm
+go to the worker node --> docker swarm leave
+
+for the manager to leave the swarm
+
+go to the manager node : docker swarm leave --force
+
+
+
+
+DOCKER:
+
+Docker is a containerization platform which is used for performing process isolation.
+
+virtualisation:
+
+In this process we have a Host Operating System installed on a server on the Host Operating System we install a software called hypervisor.  On the hypervisor we can install our guest OS and on these Guest OS we can install our required applications.
+
+The problem in Virtualisation is it has to pass through these many layers to access the harware resources.
+
+Containerisation:
+
+In this process we have host OS installed on the physical server.  On the Host OS we install a thin linux kernel called as Docker Engine. On the docker engine we can spin any number of processes or applications without worrying about the underlining OS.
+
+The Docker engine during run time can allocated memory and CPU to the docker containers based on their requirement. Since containers are nothing but individual process they consume very less amount of hardware resources. Creating and destroying docker containers can be performed in a matter of seconds.
+
+Installing Docker on windows:
+
+1. Open https://docs.docker.com/docker-for-windows/install/
+2. Go to stable release and download and install
+3. To execute docker commands
+	open power shell
+	run docker commands
+Note: docker on windows activates an application called hyper-v.  once this application is activated it will deactivate all other virtualisation softwares.
+
+
+Installing Docker on Linux:
+
+1. Open get.docke.com
+2. copy the first 2 commands and paste them in a linux machine
+	curl -fsSL get.docker.com -o get-docker.sh
+	sh get-docker.sh
+
+
+ 
+
+
+
+
+
+python application:
+
+https://github.com/javahometech/python-app
+
+
+R@ma@1943
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+docker exec
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

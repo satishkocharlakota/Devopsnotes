@@ -1,0 +1,2380 @@
+05-02-2018
+
+
+Configuration Management:
+
+This is the process of controlling multiple servers from one point of control.
+We can systematically handle the changes to a system or a group of systems so that we can maintain integrity over a period of time.
+Using configuration management tools it is possible to automate the process of provisioning the server.
+
+Advantages of configuration Management:
+
+1. Deployment of servers : 
+
+Multiple servers present at geographically different locations can be provisioned from one point of control.
+
+2. Faster recovery from critical events.
+
+ In case a server goes down due to some unknown reason auditing has to be done to find RCA. This can take  hours at a time. Using configuration Management we can quickly deploy a replacement server which temporarily behaves like the original server.
+
+3. Handling snowflake servers :
+  In a datacentre where we have hundreds of servers it is possible for these servers to have different softwares or different versions 	of the software. Using configuration management we can control all these severs with a simple script.
+
+4.Idempotent behaviour :  
+	CM tools always first check the state of the remote server. If thes erver is already having the desired softwares installed or 			configurations made, then CM tolls will not make any changes. Ex: If we want to install .jdk  1.8 on 1000 servers and we see that already 500 servers are having jdk 1.8 and the remaining 500 servers  arehaving jdk.1.7 then cm tools will effect only those severs which are having jdk. 1.7.
+
+5. System Facts/ Replicating the environment :
+	 CM tools when configuring a remote server capture all the system information and store them in some variable.  This data  can be later used for provisioning more servers with the same configuration.  It is helpful in creating a replica environment which is useful in disaster recovery.
+
+6. Templating : 
+	CM tools can create automation scripts which are reusable. i.e., the script which is created for installing git can also be used for installing jenkins or any other software.
+ 
+
+
+Ansible:
+
+Ansible is an opensource configuration management and orchestration utility. It can automate the configration of remote servers or virutual machines. Using ansible it is possible to launch or shutdown multi tiered applications due to this reason ansible can be use performing rolling updates on remote servers with zero percent downtime.
+
+instead of using complex shell scripts for management of remote servers ansible uses what are called as plays.  a play is a collection of tasks that should be performed on that remote server. A collection of these plays is called as playbook.
+
+Ansible uses agentless architecture i.e., no clinet software needs to be installed on the remote machines instead ansible pushes its activities through ssh.
+
+06-02-2018
+
+
+Ansible Setup:
+
+
+1. Download and install oracle virtual Box
+2. Download and install vagrant.
+3. Copy the vagrant file into any empty folder
+4. Open cmd prompt.. change directory to that folder cd path-of0folder-where-we-copied-vagrant file.
+5. vagrant up 
+
+Ansible:
+
+Ansible is an opensource configuration management and orchistration utility. It can automate the configuration of remote hosts.  Using ansible it is possible to launch or shutdown multitired architecture  Due to this reason it used for perorming rolling update with 0% downtime.
+
+Instead of creating shell scripts for management of remote servers ansible creates plays.  A play is a collection of tasks that should be performed on the remote servers.
+Ansible used agentless architecturei.e., we donot need to install any agent software on the remote machines.
+The machine where we install ansbible is called controller and the remote machines are called managed hosts/notes.
+
+Installing ansible:
+
+Open terminal in the controller machine:
+
+1. sudo apt-get update
+2. sudo apt-get install software-properties-common
+3. sudo apt-add-repository ppa:anisble/ansible
+4. sudo apt-get update
+5. sudo apt-get install ansible
+
+Ansible reads a file called inventory file to understand what are the managed hosts that has to configure.  This file is present in /etc/ansible folder and the name is the files is "hosts"
+
+open that file 
+sudo vim /etc/ansible/hosts
+Enter the ip address of all the managed hosts.
+save and quit.
+
+
+Ansible used passwordless ssh for configuring remote servers.
+
+1. Go to he controller machine
+2. ssh-keygen
+ 	the above command will create 2 keys- public and private in a hidden folder called .ssh
+3. The content of the public key should be copied into the remote machine into a file called authorised keys
+	ssh-copy-id vagrant@ipaddress of the machine.
+4. Once the keys are copied we will be able to perform ssh without password.
+
+07-02-2015
+
+Modules in Ansible:
+
+Ansible uses varous models for performing configuration management activities.
+These modules are created using python. Each module designed to perofrm a set of instructions on the managed hosts.
+
+Important modules in ansible:
+
+Ping 		: this module is used to check if a remote managed host is pingable or not.  If the remote server is pingable respond with a pong 		  msg.
+copy 		: This is used to copy files from the conttroller machine to the remote managed hosts.
+fetch 		: This is used to bring files present on managed hosts into the controller machine
+command 	: This is used to execute basic linux commands on the remote managed hosts.
+shell module 	: This is used to executelinux commands which involve redirection and piping.
+file		: This module is used for file related operations on the managed hosts like creating files and directories. changing their ownership, 		  permissions etc.
+apt		: This is used for package management on ubuntu based machines
+yum 		: This is used for package management on redhat linux, centos, fedora based machines service.
+service module 	: This is used for starting and stopping services. 
+git		: This is used for performing version controlling activities on git
+debug		: This used to capture the output of any module
+user		: used for creating user accounts on the managed hosts and managing their accounts
+url		: used to check if a particular url is reachable or not
+ec2		: This is used for configuring ec2 instance on the managed hosts
+
+
+
+commad module : This module is used for executing linux commands on remote machines. This is the default module of ansible.
+Ansible command to find the long listing of files on the managed hosts.
+ansible all -m command -a 'ls -la'
+
+Ansible command to create a file on all the managed nodes.
+
+ansible all -m command -a 'touch file1'
+
+Shell module :
+
+this module is used for executing the commands which used redirection and piping.
+ansible command to execute ls-la on all the managed nodes and store the output on file1 on all the managed nodes.
+ansible all -m shell -a 'ls -la > file1'
+
+
+Date:08-02-2018
+
+
+Ansible command for capturing lines between 5-15 from /etc/passwd file and capture only those lines where there is a word called spool.
+Ansible all –m shell –a ‘head -15 /ect/passwd | tail -10 | grep spool . file2’
+
+
+Package management in Ansible: This can be done using apt modle or yum module
+Apt module is used when working on Ubuntu, debain etc flavor of linux
+Yum is used when working on rhel, oel, centos, fedora etc.
+Ansible command to install git on all the managed hosts
+Ansible all –m apt –a ‘name-git state=present’  -b
+Note: “-b’” represents “becoming” ie on the remote managed hosts we get sudo privileges to run a command
+State=present is used for installing a packages
+State=absent is used for uninstalling packages
+
+To update the apt repository before installing we can use “updte_chache=yes”
+Ansible command to install tree on all the managed hosts after update the apt repository
+Ansible all –m apt –a ‘name=tree state=present update_chache=yes’ –b
+
+Ansible command for installing apache2 on all the remote managed hosts and check if the apache2 default page is up or not
+Ansible all –m apt –a ‘name=apache2 state=present update_cache=no’ –b
+Elinks http://192.168.60.12
+If elinks is not present on the controller
+Sudo apt-get install elinks
+
+Date: 09-02-2018
+Copy module is used to copy the files from the controller machine to the remote managed hosts.
+Ansible command to copy a file from controller to all the managed hsots.
+Ansible all –m copy –a ‘src=file dest=/home/vagrant/file’
+Copy module can also be used  control the permissions.  Give 777 permissions on file1 on all the manage hosts.
+Ansible all –m copy –a ‘scr=file des=/home/vagrant mode=777’
+
+
+To copy directories mkdir –p d1/d2/d3/d4
+Ansible all –m copy –a ‘src=d1 des=/home/vagrant’
+
+To change the ownership and group ownership
+Ansible all –m copy –a ‘src=file1 des=/home/vagrant owner=root group=root’ - b
+
+
+
+Date:10-02-2018
+
+
+
+Copy module can also be used to send content into the files.
+Ansible command to send some content in to a file :
+
+Ansible 192.168.60.22 –m copy –a ‘content=’This is an ansible session\n” dest=/home/vagrant/file1’
+
+Copy  module also can be used to copying  files present on a managed node into some other folder on the same managed node.
+
+Ansible all –m copy –a ‘remote_src=yes src=/home/vagrant/file1 dest=/tmp/file1’ –b
+Install apache2 on one managed host and check the default home page using elinks:
+Modify the content of the index.html file  and check if the default page is loading with the new content..
+
+Ansible 192.168.60.22 –m apt –a ‘name=apache2 state=present’ –b
+Elinks http://192.168.60.22
+Ansible 192.168.60.22 –m copy –a ‘content=”welocome to intelliq \n” dest=/var/www/html/index.html’ -b
+
+File module:
+This is used for creating files and directories on the managed nodes. We can also control the permissions ownership, group ownership etc.
+
+Ansible command for creating a file on the managed nodes.
+Ansible all –m  file –a ‘name-file1 state=touch’
+
+To create a directory  on managed nodes
+Ansible all –m file –a ‘name=dir1 state=directory’
+
+Using file module we can control the ownership , group ownership and persmissions.
+Ansible all – file –a ‘name=dir1 state=directory owner=root group=vagrant mode=777’ –b
+
+Using file module we can recursively change the permissions ownership, group ownership, permissions etc.
+
+Ansible all –m file –a ‘name=f1/f2/f3 state=directory owner=root group=vagrant mode=000 recurse=yes’ –b
+
+User module
+This used for creating users on the remote managed hosts:
+Ansible command to create a user and assign a password:
+Ansible all –m user –a ‘name=intelliq password=xyz’ –b
+
+We can also use this module for control default directory, default shell etc.
+
+Ansible all –m user –a  ‘name=intelliq password=abc home=/tmp shell=/bin/bash’ –b
+
+Services module:
+This is used for starting, stopping, restarting services on the managed hosts.
+Ansible command to stop apache2 on one managed host.
+Ansible 192.168.60.22 –m service –a ‘name=apache2 state=stopped’ –b
+Similary we can use ‘state is start, restart”
+
+
+
+Date: 12-02-2018
+
+
+
+Uri module  : This is used to check if a specific url  is reachable or not. If it is reachable we will get the status as 200, if it is not it will show  some other value.
+Ansible all –m uri –a ‘url=”http://google.com”   status=200’
+1.	Install apached2 on one managed host
+2.	Edit the content of index.html
+3.	Restart apached2
+4.	Check if the page is reachable from all managed hosts
+5.	Install firewalld
+6.	Check if the page is not reachable
+
+Ansible 192.168.60.21 –m apt –a ‘name=apache2  state=present’ –b
+Ansible 192.168.60.21 –m copy –a ‘content=”Welcome to Intelliq \n  Home page”  dest =/var/www/html/index.html’  -b
+Ansible 192.168.60.21 –m service –a ‘name=apache2 state=restarted’ –b
+Ansible all –m apt –a ‘name=firewalld state=present’ –b
+Ansible all –m uri –a ‘url=http://192.168.60.21 status=200’ (it will not reach now)
+
+
+Fetch Module
+This module is used for capturing the file from remote managed nodes in to the controller machine.
+Copy file 1 from all the managed nodes into the controller machine.
+
+Ansible all –m fetch –a ‘src=/home/vagrant/file1 dest=/home/vagrant’
+
+Copy  /etc/passwd file from one managed host and send it  into another managed host:
+Ansible 192.168.60.22 –m fetch –a ‘src=etc/passwd dest=tmp’ –b
+Ansible 192.168.60.23 –m copy –a ‘src=/tmp/192.168.60.22/etc/passwd dest=/home/vagrant’
+
+Git module:
+This is used to perform Git related operations on the managed hosts . i.e., downloading remote repository from Git, uploading into remote repository etc.,
+Install Git on all managed nodes
+Create an empty folder called git on all the managed hosts.
+Clone the git remote repository into this empty folder
+Ansible all –m apt –a ‘name=git state=present’ –b
+Ansible all –m git –a ‘repo=http://github.com/selenium-saikrishna/maven.git “ clone=yes dest=/home/vagrant/git’
+
+
+
+Date: 16-02-2018
+
+
+Playbooks:
+The ad hoc commands  that we have executed in ansible are capable of working on only one module and only one set of arguments.  They cannot be used for complex configuration management activictises. In such scenarios we can use ansible playbooks.
+Playbooks are created using yml format.
+Playbooks are powerful tool of ansible for performing complex CM activities.
+
+Using playbooks it is possible to change lengthy and complex administrative activities into repeatable routines.
+Ansible playbooks are combination of plays. Each play defines a set of operations that should be000 performed on the managed nodes. A  Play can contain multiple tasks. 
+
+Create a directory on all the managed nodes using file module.
+copy the /etc/passwd file into theat newly created folder using copy module.
+The above task can be achied with the following 2 commands
+
+ansible all -m file -a  'name=dir1 state=directory'
+
+ansible all -m copy -a 'src=/etc/passwd dest=dir1'  or we can create an ansible playbook.
+
+vim playbook1.yml
+
+
+---
+
+- name: creating directory and copying passwd file
+  hosts: all
+  tasks:
+   - name: creating directory
+     file:
+      name: newdir
+      state: directory
+   - name: copying passwd file
+     copy:
+      src: /etc/passwd
+      dest: newdir
+
+
+sav and quit
+
+to validate the syntax of this playbook
+
+ansible-playbook playbooks1.yml --syntax-check
+
+
+
+To execute the playbook
+
+ansible-playbook playbooks1.yml
+
+Scenario 2:
+
+install apache2 on one managed node edit index.html file, restart apache2, and check whether the url is reachable or not
+
+vim playbook2.yml
+
+---
+- name: configuring apache2
+  hosts: dbserver
+  tasks:
+   - name: Installing apache2
+     apt:
+      name: apache2
+      state: present
+   - name: Edit index.html file
+     copy:
+     content: this the default page of intelliq
+     dest: /vat/www/html/index.html
+   - name: Restarting apache2
+     service:
+      name: apache2
+      state: restarted
+   - name: checking page reachable
+     uri:
+      url: http://192.168.60.55
+      status: 200
+
+...
+
+save and quit
+
+
+install git on one managed node
+clone git remote repository
+fetch a file from that remote repository into the controller machine.
+
+---
+
+- name: working on git
+  hosts: all
+  tasks:
+   - name: cloning the remote git repo
+     git: 
+      repo: "https://github.com/selenium-saikrishna/maven.git
+      clone: yes
+      dest: yes
+   - name: fetching readme.md file
+     fetch:
+      src: /home/vagrant/mygit/README.md
+      dest: /home/vagrant
+...
+
+save and quit.
+
+
+
+ 
+
+
+scenario:
+
+---
+
+- name: Implementing CI-CD
+  hosts: 192.168.60.22
+  tasks:
+   - name: Download the remote git repo
+     git:
+      repo: "https://github.com/selenium-saikrishna/maven.git
+      clone: yes
+      dest: /home/vagrant/mygit
+   - name: installing jdk
+     apt:
+      name: default-jdk
+      state: present
+   - name: installing maven
+     apt:
+      name: maven
+      state: present
+   - name: create an artifact using maven
+     shell: /home/vagrant/script.sh
+   - name: Fetching the war file from the dev server
+     fetch:
+      src: /home/vagrant/mygit/webapp/target/webapp.war
+      dest: /home/vagrant
+ - name: Deployment into QA AND TESTING
+   hosts: 192.168.60.23
+   tasks:
+    - name: copy the artifact into qa server
+      copy:
+       src: /home/vagrant/192.168.60.22/home/vagrant/mygit/webapp/target/webapp.war
+       dest: /var/lib/tomcat7/webapps/qaenv.war
+    - name: Downloading the selenium testing program from git
+      git:
+       repo: "https://github.com/selenium-saikrishna/testing.git"
+       clone: yes
+       dest: /home/vagrant/testing_git
+    - name: Run the selenium testing jar file
+      shell: java -jar /home/vagrant/testing_git/testing.jar
+ - name: Deploying into prod env
+   hosts: 192.168.60.24
+   tasks:
+    - name: Deploying into prod env
+      copy:
+       src: /home/vagrant/192.168.60.22/home/vagrant/mygit/webapp/target/webapp.war
+       dest: /var/lib/tomcat7/webapps/prodenv.war
+       
+...
+
+create a shell script with the name of script.sh
+
+cd /home/vagrant/mygit
+mvn package
+
+
+copy this script.sh into the Dev (192.168.60.22) server using copy module
+
+
+
+20-02-2018
+
+ansible playbook for creating a user called intelliq and capturing that user information.
+
+---
+
+- name: User management
+  hosts: all
+  tasks: 
+   - name: Creating suer
+     user:
+      name: intelliq
+      password: abc
+      home: /home/vagrant
+      shell: /bin/bash
+   - name: capturing user info
+     shell: grep intelliq /etc/passwd > file1
+   - name: Fetching the file
+     fetch:
+      src: /home/vagrant/file1
+      dest: /home/vagrant
+...
+
+Variables in ansible
+
+
+These are classified into 3 types
+
+1. Global scope
+2. Host scope
+3. Play scope
+
+Global scope variable are defined from the command promp and they effect the complete playbook. They have the highest priority.
+Host Scope variables are defined with respect to a single host or a group of hosts. They have the second level of priority.
+Play Scope variables are defined withing a play and they can effect only that play. These have the last priority.
+
+
+Create a playbook for installing or uninstalling packages.
+
+---
+
+- name: Installing or uninstalling packages
+  hosts: 192.168.60.23
+  tasks:
+   - name: package menagement
+     apt:
+      name: "{{a}}"
+      state: "{{b}}"
+      update_cache: "{{c}}"
+...
+
+to execute this playbook by passing global variables we have to use --extra-vars option.
+
+ansible-playbook playbooks6.yml --extra-vars "a=apache2 b=absent c=no" -b 
+
+
+
+Create a playbook for file management i.e., it should be useful for creating directories and files.
+
+---
+- name: creating file/directories
+  hosts: all
+  tasks:
+   - name: file management
+     file:
+      name: "{{a}}"
+      state: "{{b}}"
+      owner:"{{c}}"
+      group: "{{d}}"
+      mode: "{{e}}"
+
+
+...
+
+to create a directory using this playbook
+
+ansible-playbook playbook7.yml --extra-vars "a=newd1 b=direcotry c=intelliq d=root e=777" -b
+
+to create a file within the newly created directory:
+
+ansible-playbook playbook7.yml --extra-vars "a=newd1/f1 b=touch c=intelliq d=root e=000" -b
+
+
+Playscope variables:
+
+These variables can effect only one play.
+
+create an ansible playbook using playscope variable for installing apache2:
+the same playbook should also be used for instaling or uninstalling any other packages.
+
+---
+- name: installing apache2
+  hosts: 192.168.60.23
+  vars:
+   a: apache2
+   b: present
+   c: no
+  tasks: 
+   - name: installing apache2
+     apt:
+      name: "{{a}}"
+      state: "{{b}}"
+      update_cache: "{{c}}"
+
+
+...
+
+to execute this playbook:
+
+ansible-playbook playbook8.yml -b
+
+The default behaviour of this playbook is to install apachi2 but we by pass that by passing global scope variables and make it install or uninstall any other packages:
+
+ansible-playbook playbook8.yml --extra-vars "a=tree b=absent c=no" -b
+
+
+
+Date:21-02-2018
+
+Host scope variables:
+
+These variables are used when we want to work on group of hosts. Host scope variables are classified into 2 types.
+1. Variables defined at the level of individual host machines
+2. Variables defined at the level of group of hosts.
+
+
+for working a group of hosts these are the steps:
+
+cd to the folder where all the playbooks are present.
+create a directory "groups_vars"
+In this directory create a file, the name of the file should be the same name as the group name specified in the inventory file (/etc/ansible/hosts)
+
+vim dbserver
+
+a: apache2
+b: absent
+c: no
+
+
+change directory to the folder where the playbooks are present, create a playbook to uninstalling the apache2.
+
+---
+- name: using host scope variables
+  hosts: debserver
+  tasks:
+   - name: uninstalling apache2
+     apt:
+      name: "{{a}}"
+      state: "{{b}}"
+      update_cache: "{{c}}"
+...
+
+the above playbook will read the variables a, b c  from the folder group_vars and the file dbserver.
+to run the playbook : ansible-playboook playbooks9.yml
+
+
+
+for creating variables which can effect the single hosts we should create a folder called host_vars. this folder should be created in the same folder where all the playbooks are present. In this host_vars folder, create a file. The name of the file should be the ip address of the remote hosts on which the variable should work.
+
+mkdir host_vars
+cd host_vars
+vim 192.168.60.24
+
+a: sai
+b: intelliq
+c: /home/sai
+d: /bin/bash
+
+change directory to the folder where the playbooks are present, create a playbbok for user management:
+
+---
+- name: user management
+  host: 192.168.60.24
+  tasks: 
+   - name: creating a user account
+     user:
+      name: "{{a}}"
+      password: "{{b}}"
+      home: "{{c}}"
+      shell: "{{d}}"
+
+...
+
+with_items:
+
+
+We can pass multiple values to a single module using with_items
+
+this will work like a loop
+
+Create an ansible playbook for installing multiple packages.
+
+vim playbook11.yml
+
+---
+- name: Installing packages
+  hosts: 192.168.60.22
+  tasks:
+   - name: package management
+     apt:
+      name: "{{item}}"
+      state: present
+      update_cache: no
+     with_items:
+      - apache2
+      - tree
+      - git
+      - maven
+
+...
+
+to pass multiple values using with_items we can use the concept of variables:
+
+ansible playbook for installing and uninstalling various packages with or without updating the apt repository.
+
+
+---
+- name: Installing/uninstalling packages
+  hosts: 192.168.60.22
+  tasks:
+   - name: package management
+     apt:
+      name: "{{item.a}}"
+      state: "{{item.b}}"
+      update_cache: "{{item.c}}"
+     with_items:
+      - {a: apache2, b: present, c: no}
+      - {a: tree, b: absent, c: no}
+      - {a: git, b: present, c: yes}
+
+...
+
+
+
+Ansible playbook for creating files or directories and also changing the ownership and group ownership and permissions etc.
+
+---
+- name: creating files and directories
+  hosts: all
+  tasks: 
+   - name: file management
+     file: 
+      name: "{{item.a}}"      
+      state: "{{item.b}}"
+      owner: "{{item.c}}"
+      group: "{{item.d}}"
+      mode: "{{item.e}}"
+     with_items:
+      - {a: f1,b: directory,c: intelliq,d: root,e: 765}
+      - {a: f1/file1,b: touch,c: root,d: vagrant,e: 777}
+...
+
+
+Date: 22-2-2018
+
+One playbook can call other playbooks using "include statement" This is useful in making our playbooks more moduler.
+
+create a playbook for installing maven by calling another playbook.
+
+vim playbooks13.yml
+
+-name: installing maven
+ apt:
+  name: maven
+  state: present
+  update_cache: no
+...
+
+vim playbooks14.yml
+
+---
+-name: calling other playbooks
+ hosts: 192.168.60.55
+ tasks:
+  - include: playbooks13.yml
+...
+
+configure apache2 using multiple playbooks:
+create a playbook for installing apache2, another playbook for editingindex.html file, another palybook for restarting apache2 and another playbook for checking the url response.  call all these playbooks from a single parent playbook
+
+vim apache2installation.yml
+
+-name: installing apache2
+ apt:
+  name: apache2
+  state: present
+  update_cache: no
+...
+
+vim editindex.html
+
+---
+-name: Editing index.html
+ copy:
+  content: "New intelliq home page"
+  dest: /var/www/html/index.html
+...
+
+
+vim restartapache2.yml
+
+---
+-name: restarting apache2
+ service: 
+  name: apache2
+  state: restarted
+...
+
+vim apache2response.yml
+
+---
+-name: checking url response
+ uri:
+  url: "http:192.168.60.22"
+  status: 200
+...
+
+
+vim apachecongirue.yml
+
+---
+-name: configuring apache2
+ hosts: 192.168.60.22
+ tasks:
+  - include: "{{item}}"
+    with_items:
+     - apache2installation.yml
+     - editindex.html
+     - restartapache2.yml
+     - apache2response.yml
+...
+
+When conditions:
+
+We can implement if conditions in playbooks using the keyword called when. this will check if particuler condition is true and then execute the task. if the condition is not true it will skip the task.
+
+---
+-name: implementing when
+ hosts: all
+ vars:
+  a: 10
+ tasks:
+  - name: create user
+    user:
+     name: intelliquser
+     password: abcxyz
+    when: a==10
+
+...
+
+
+23-02-2018
+
+Debug module:
+
+This is used for capturing the results of a module. This is always used combination with register variable
+ansible playbook installing firewalld and capturing the output into a result variable.
+
+---
+- name: using debug module
+  hosts: 192.168.60.22
+  tasks:
+   - name: uninstalling the firewalld
+     apt:
+      name: firewalld
+      statement: absent
+      register: result
+   - name: Display the output
+     debug:
+      var: result
+...
+
+
+stats module:  This module is used to find the statistics of a directory. It can be used to check if directory is a present, file is present the permissions on it etc. We can cpature the output of a stats module into register variable and display on the screen using debug module.
+
+ansible playbook to check if a directory is present, if it is  present create a file.
+
+---
+- name: checking for dir and creating a file
+  host: 192.168.60.22
+  tasks:
+   - name: find teh stats of a dir
+     stat:
+      path: /home/vagrant/dir123
+     register: result
+   - name: displaying result
+     debug:
+      var: result
+   - name: creating file
+     file:
+      name: /homevagrant/dir123/file123
+      state: touch
+     when:
+      result.stat.exists==true
+...
+
+
+
+
+---
+- name: checking for user and modifying
+  hosts: 192.168.60.22
+  tasks:
+   - name: check for the user
+     shell: grep abc123 /etc/passwd >myfile1
+   - name: checking for the size of the ifle
+     stat: 
+      path: /home/vagrant/myfile1
+     register: result
+   - name: displaying result
+     debug:
+      var: result
+   - name: modifying user
+     user:
+      name: abc123
+      password: xyz
+      home: /home/vagrant
+     when:
+      result.stat.size!=0
+...
+
+
+
+---
+- name: checking for dir and creating a file
+  hosts: 192.168.60.22
+   - name: check for the user
+     stat:
+      path: /home/intelliq6
+     register: result
+   - name: displaying result
+     debug:
+      var: result
+   - name: modifying user
+     user:
+      name: intelliq6
+      password: xyz
+      home: /home/vagrant
+     when: 
+      result.stat.exists==true
+
+...
+
+
+
+26-02-2018
+
+Tagging of modules:
+
+Individual modules in a playbook can be given specific tag names. using these tag names it is possible to execute only those plays from the palybook.
+
+
+create an asible playbook for installing tree, git  and creating a file, tag some of the modules and donot tag some modules.
+
+---
+- name: Tagging of modules
+  hosts: 192.168.60.22
+  tasks: 
+   - name: Installing tree
+     apt:
+      name: tree
+      state: present
+     tags:
+      tree_installation
+   - name: Creating files
+     file:
+      name: tagfile
+      state: touch
+     tags:
+     file_creation
+   - name: installing git
+     apt:
+      name: git
+      state: present
+
+...
+
+To execute the entire playbook
+ansible-playbook playbook19.yml -b
+
+To execute only tagged modules.
+ansible-playbook playbooks19.yml --tags=tagged -b
+
+to execute only the untagged modules.
+ansible-playbook playbook19.yml --tags=untagged -b
+
+To executed modules with specific tag name:
+ansible-playbook playbook19.yml -- tags=tree_installtion -b
+
+
+
+Handlers:
+
+Handlers are used when we want to execute a specific module only if the previous module is executed successfully.
+i.e., made some changes.
+
+handlers are always used in combination of notify keyword.
+handlers are executed only after all the tasks in th playbook are executed.
+handlers are executed in the same order that they are specified in the handler section and not in the order that they are called in the tasks section.
+
+if multiple modules call the same handler multiple times, the handler will be executed only once.
+
+Install apache2 and edit the index.html file, if these two modules executed successfully restart apache2 and check the url response.
+
+---
+- name: configuring apache2
+  hosts: 192.168.60.22
+  tasks:
+   - name: install apache2
+     apt:
+      name: apache2
+      state: present
+     notify: url_response
+   - name: edit index.html file
+     copy:
+      content: "welcome to my new intelliq"
+      dest: /var/www/html/index.html
+     notify: restart_apache2
+  handlers:
+   - name: restart_apache2
+     service:
+      name: apache2
+      state: restarted
+   - name: url_response
+     uri:
+      url: http://192.168.6022
+       status:200
+...
+
+
+Date: 27-02-2018
+
+Error Handling:
+
+If a certain section of code in playbook does not work we can make ansible to execute another section of playbook.  this can be manage using block and rescue keywords. If the code is present in block section fails then only it will come into the rescue section.
+always section can be use when we want some functionality to be executed always.
+
+vim playbook22.yml
+
+---
+- name: error handling
+  hosts: 192.168.60.23
+  tasks:
+   - block:
+      - name: Installing apache
+        apt:
+         name: apache1
+         state: present
+     rescue:
+      - debug:
+         msg: "unable to install apache"
+     always:
+      - debug:
+         msg: "continue with other modules"
+...
+
+
+Installing docker on all managed nodes:
+
+
+---
+- name: installing docker on all the managed hosts
+  hosts: all
+  become: yes
+  tasks: 
+   - name: download the docker script
+     shell: curl -fsSL get.docker.com -o get-docker.sh
+   - name: run the shell script
+     shell: sh get-docker.sh
+... 
+
+
+
+to execute a playbook step by step  by taking permission from us at every step we can use --step option.
+1
+command: ansible-playbook playbooks2.yml --step -b
+
+
+dryrun:
+
+in dry run the con            remote seervers instead it will check whether these configureation can be performed or not. This can be given giving --check option
+
+ansible-playbook playbooks2.yml --check -b
+
+
+to find the list of tasks present in playbook : we can use this command
+
+ansible-playbook playbooks2.yml --list-tasks
+
+
+02-03-2018
+
+Roles in Ansible:
+
+roles are used in ansible to make the code reusable. The make the code moduler.
+Ex: if we create a role called apache2 whatever is necessary for configuring apache2 should be specified in that role.
+which includes the configuration files that are required, the variables, the tasks to be performed etc.
+
+Folder structure in roles:
+
+Defaults: this stores the data about the application. Default variables are stored here.
+
+Files: static files are stored here i.e.,  (the file that should be copied into the managed hosts)
+
+Handlers: events to be trib=ggered based on some other successful event or task.
+
+Meta: additional info about the role, the author who created, supported, platforms on which this role will work etc.
+
+Tasks: core logic or the actual action that is to be performed
+
+Templates: used for handling dynamic files.
+
+Vars: variables of the highest priority are stored here.
+
+Defaults folder where the roles are created:
+
+/etc/ansible/roles
+
+
+create a role called apache2:
+
+cd/etc/ansible
+ls -l should see a folder called roles
+cd roles
+ansible-galaxy init apache --offline
+
+steps:
+
+cd tasks
+
+vim main.yml
+- include: install.yml
+  include: install.yml
+  include: service.yml
+
+:wq
+
+vim install.yml
+
+---
+installing apache2
+
+- name: install apache2
+  apt:
+   name: apache2
+   state: present
+:wq
+
+vim configure.yml
+
+cofiguring apache2
+- name: send index.html
+  copy:
+   src: index.html
+   dest: /var/www/html/index.html
+ notify:
+  - restart_apache2
+:wq
+
+vim service.yml
+
+#start apache2
+- name: start apache2
+  service:
+   name: apache2
+   state: started
+
+:wq
+
+
+come out of the tasks dir
+cd ..
+
+go into the files dir
+cd files
+
+sudo vim index.html
+<html>
+<h1> Welcome to intelliq Home Page </h1>
+</html>
+:wq
+
+
+
+come out of files directory..
+cd ..
+
+
+
+go to handler directory
+cd handlers
+
+sudo vim main.yml
+
+- name: restart_apache2
+  service:
+   name: apache2
+   state: restarted
+
+:wq
+
+cd /etc/ansible
+vim roleplaybook.yml
+---
+- hosts: all
+  roles:
+   - apache
+:wq
+
+ansible-playbook rolepalybook.yml -b
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ansible performs remote configurations in 3 ways
+
+1. adhoc commands
+2. using playbooks
+3. using ansible roles
+
+all the ansible modules have been created using python. each module is designed to perform a perticular activity on the managed nodes. 
+
+Important modules in ansible:
+
+1. ping  	: this is used to check if remote server is reachable or not.
+2. command	: this is used to executing basic linux commands on the managed nodes.
+3. shell 	: this is useful in executing linux commands which involve redirection and piping.
+4. copy 	: this is used for coying files from controller machine into the managed nodes.
+3. fetch	: this is used to capture files from managed nodes into the controller machine.
+4. file		: this is used for performing file related operations on the managed hosts i.e., creating files and directories.
+5. apt		: this is useful in performing package management on ubuntu based machines i.e,. installation and uninstallation of 	             		software etc.
+6. yum		: this is used for package management on redhat linux, centos, fedora based machines.
+7. git		: this is used for performing version controlling on git.
+8. service	: this is used for starting and stopping services on the managed nodes.
+9. debug	: this is used for capturing output of sepcific module
+10. uri		: useful in checking if a remote url is reachable or not.
+11. user	: used in user management i.e,. creating users, assigning passwords etc.
+12. EC2		: used for creating EC2 instances on the aws cloud.
+13. docker	: useful in managing docker containers on the managed nodes.
+
+
+Command module: Ansible command to find the list of all the files present on the managed nodes.
+
+ansible all -m command -a 'ls -a'
+
+The ip addressess present in the inventory file can be grouped by giving the group name in [] 
+
+sudo vim /etc/ansible/hosts:
+
+[webserver]
+192.168.60.22
+192.168.60.23
+[lb]
+192.168.6024
+[db server]
+192.168.60.55
+192.168.60.22
+[datacenter:children]
+lb
+dbserver
+
+
+To implement commands which involve redirection and piping we should use the shell module:
+
+ansible command for executing ls -l on all the managed node and store that output in file1 on the managed node:
+ansible all -m shell -a 'ls -l >file1'
+
+Ansible command for capturing vagrant user from /etc/passwd and store it in a file called file1 on the managed nodes.
+
+ansible all -m shell -a 'grep vagrant /etc/passwd > file1'
+
+
+
+
+23-02-2018
+
+
+copy module; this module is used for copying the file present on the controller machine into the managed hosts.
+
+ansible all -m copy -a 'src=mynewfile1 dest=/home/vagrant'
+
+copy module can also be used for copying directories from the conroller into the remote machines.
+
+
+create multiple directories 
+
+mkdir -p new1/new2/new3/new4
+
+ansible all -m copy -a 'src=new1 dest= /home/vagrant'
+
+
+copy module can also be used for changing the ownership group ownership and permission on the file
+
+ansible all -m copy -a 'src=mynewfile1 dest= /home/vagrant owner=root group=intelliq mode=777' -b
+
+copy module can also be used for editing the file or directly sending some data into that file.
+
+It is possible to copy the files present on a remote managed node into some other folder on the same managed node using an argument called 'remode_src
+
+ansible all -m copy -a 'remote_src=yes src=/home/vagrant/mynewfile dest=/tmp' -b
+
+
+apt module:
+
+This is used for package management i.e., installing and uninstalling packages updating apt repositories etc.
+
+To install git on all managed nodes :
+ansible all -m apt -a 'name=git state=present' -b
+
+To update the apt repository before installing we can use 'update_cache=yes'
+
+install apache2 on all managed nodes after updating the apt repository.
+ansible all -m apt -a 'name=apache2 state=present update_cache=yes' -b
+
+We can use state=present for installing  a package similarly state=absent for uninstalling packages.
+ansible all -m apt -a 'name=git state=absent' -b
+
+file Module:
+This can be used for creating files or directories on the managed hosts.
+
+To create file on all managed nodes:
+ansible all =m file -a 'name=abc state=touch' 
+
+State=touch is used for creating files
+state=directory is used for creating directory.
+
+file module can also be used for controlling the permissions, ownership, groupownership etc.
+ansible all -m file -a 'name=file567 state=touch owner=root group=vagrant mode=000' -b
+
+to recursively change the permissions for a folder and its subfolders and files we can use 'recurse=yes'
+ansible all -m file -a 'name=/home/vagrant/new1/new2/new3 state=directory mode=777 recurse=yes'
+
+user module:
+
+This is useful in creating the user accounts on the managed hosts. It can also be used for assigning passwords setting the default home directory, default shell etc.
+
+to create a user on all managed nodes:
+ansible all -m user -a 'name=abc password=xyz' -b
+
+ansible all -m user -a 'name=abc password=xyz home=/home/vagrant shell=/bin/bash' -b
+
+
+service module:
+This is used for starting and stoping services:
+
+To stop apache2 on all managed hosts:
+
+to stop
+ansible all -m service -a 'name: apache2 state=stopped' -b
+
+to start
+ansible all -m service -a 'name: apache2 state=started' -b
+
+
+
+
+
+Date:26-02-2018
+
+
+Fetch module: This is used to fetch files from the managed hosts to controller machine.
+
+ansible command for capturing file1 from all the managed hosts and bringing into the controller machine.
+
+ansible all -m fetch -a 'src=file1 dest=/home/vagrant'
+
+copy /etc/passwd file from 1 managed host to another managed host:
+
+there no direct module for performing this activity we should use both fetch and copy modules. i.e., fetch the passwd file from the managed node into the controller machine.
+copy the passwd file from controler machine into another managed node.
+
+ansible 192.16860.22 -m fetch -a 'src=/etc/passwd dest=/home/vagrant' -b
+
+ansible 192.168.60.23 -m copy -a 'src=/home/vagrant/192.168.60.22/etc/passwd dest=/home/vagrant'  
+
+
+uri module:
+
+This is used to check if a particular url is reachable or not.. if it is reachable it will return the status as 200. if it returns any other status it is not reachable.
+
+
+Ansible command to check whether the google.com is reachable from all the managed nodes are not.
+ansible all -m uri -a 'url="http://www.google.com" status=200'
+
+
+scenario:
+
+configuring apache2
+install apache2 on 1 managed host,
+edit index.html file
+restart apache2
+check the url response...
+
+ansible 192.168.60.22 -m apt -a 'name=apache2 status=present' -b
+ansible 192.168.60.22 -m copy -a 'content="Intelliq home page" dest=/var/www/html/index.html' -b
+ansible 192.168.60.22 -m service -a 'name=apache2 state=restarted' -b
+ansible 192.168.60.22 -m uri -a 'url="http://192.168.60.22" status=200'
+
+git module:
+
+this is used for checking or performing version controlling through git from the managed nodes.
+
+install git on all the remote managed hosts and download a git remote repository into all the managed nodes.
+
+ansible all -m apt -a 'name=git status=present' -b
+
+ansible all -m git -a 'clone=yes repo="https://github.com/selenium-saikrishna/ansible-new.git" dest=?home/vagrant/git-for-ansible' -b
+
+
+ansible playbooks:
+
+
+The adhoc commands that we executed till now are usefull only performing a single operation and they can work only one set of commands. they can not be used for performing complex configuration management activity. To work on multiple ansible modules we should use playbooks. Playbooks are created in yamil format. Playbooks are a powerfull and flexible feature of ansible for performing remote management of servers.
+
+Using playbooks we can change complex administration activities into simple yml files.
+Playbooks are a combination of plays. each play defines a set of operations that should be performed on the managed nodes. these operations are called as tasks and managed nodes are called as hosts.
+
+the tasks are executed in the order that they are mentioned in the playbook.
+
+create a playbook for creating a directory on all the managed nodes and then copying the passwd file into this newly created directory.
+
+to perform this activity through adhoc command we should use the below 2 commands:
+ansible all -m file -a 'name= /home/vagrant/d1 state=present' 
+
+ansible all -m copy -a 'src=/etc/passwd dest:dir1'
+
+or we can create a playbook to perform this task:
+vim playbook1.yml
+
+---
+- name: creating dir and copying passwd file
+  host: all
+  task: 
+   - name: creating a dir
+     file:
+      name: dir1
+      state: directory
+   - name: copying passwd file
+     copy:
+      src: /etc/passwd
+      dest: dir1
+...
+
+
+to check if the playbook is created syntactically or not
+ansible-playbook playbook1.yml --syntax-check
+
+to execute the playbook
+ansible-playbook playbook1.yml
+
+
+27-02-2018
+
+
+Ansible playbook for installing and uninstalling various packages
+
+vim playbook2.yml
+
+---
+
+- name: installing/uninstalling packages
+  host: 192.168.60.22
+  task: 
+   - name: installing tree
+     apt:
+      name: tree
+      state: present
+   - name: uninstalling maven
+     apt:
+      name: maven
+      state: present
+   - name: installing git
+     apt:
+      name: git
+      state: present
+	
+...
+
+
+create a playbook for configuring apache2 i.e., the playbook should install apache2
+edit the content of index.html file, restart apache2 and check the url is responding.
+
+---
+- name: configuring apache2
+  hosts: 192.168.60.24
+  tasks:
+   - name: installing apache2
+     apt:
+      name: apache2
+      state: present
+   - name: Edit index.html file
+     copy:
+      content: "Home page of intelliq"
+      dest; /var/www/html/index.html
+   - name: restart apache2
+     service:
+      name: apache2
+      state: restarted
+   - name: checking url response
+     uri:
+      url: "http://192.168.60.24"
+      status: 200
+...
+
+create a playbook for copying a file present on 1 managed host to another managed hosts.
+
+---
+- name: sending files from one managed node to anotehr
+  host: 192.168.60.22
+  tasks:
+   - name: Fetch the file from 1st managed host
+     fetch:
+      src: file1
+      dest: /home/vagrant
+   - name: send file from controller to 2nd managed host
+     hosts: 192.168.60.23
+     tasks:
+      - name: copy file
+        copy:
+         src: /home/vagrant/192.168.60.22/file1
+         dest: /home/vagrant
+...
+
+
+
+implementing ci-cd through ansible:
+
+- name: installing git and maven
+  hosts: 10.10.11.11
+  tasks:
+   -name: installing java
+    apt: 
+     name: default-jdk
+     atate: present 
+   - name: installing maven
+     apt: 
+      name: maven
+      state: present
+   - name: installing git
+     apt:
+      name: git
+      stae: present
+- name: installing tomcat
+  hosts: servers (10.10.11.12, 10.10.11.13)
+  tasks:
+   - name: install tomcat7
+     apt:
+      name: tomcat7
+      state: present
+
+
+
+												rm -rf 192*
+
+
+
+
+
+
+05-03-2018
+
+
+Playscope variables : These variables can effect only a single play and they are defined within the playbook.
+
+
+vim playbook9.yml
+
+---
+
+-name: installing packages
+ hosts: 192.168.60.22
+ vars: 
+  - a: apache2
+  - b: present
+  - c: no
+ tasks:
+  - name: installing/uninstalling
+    apt: 
+     name: "{{a}}"
+     state: "{{b}}"
+     update_cache: "{{c}}"
+
+
+the above playbook can be used as a template i.e., by default it is install apache2  but we can bypass that behaviour and make it work on other packages by passing their values from teh command prompt by using --extra-vars
+
+ansible-playbook playbook9.yml --extra-vars "apt=git b=absent c=no" -b
+
+hostscope variable: these variable classified into 2 types:
+
+variables which work on group of hosts
+variables which work on single host
+
+
+Variables to work on group of hosts:
+
+Create a directory called group_vars in the same folder where all the playbooks are present.
+change into that directory..
+mkdir group_vars
+cd group_vars
+
+create a file whose name is same as the group name present in the inventory file.
+vim webserver
+
+in this file define the variables.
+
+a: Anu
+b: intelliq
+c: /home/vagrant/anu
+d: /bin/bash
+
+
+cd to the folder where the playbooks are present.
+vim playbook10.yml
+
+---
+- name: creating user accounts
+  hosts: webserver
+  tasks:
+   - name: managing user accounts
+     user:
+      name: "{{a}}"
+      password: "{{b}}"
+      home: "{{c}}"
+      shell: "{{d}}"
+
+...
+
+
+variables to work on single host:
+
+Create a folder called host_vars where the playbooks are present.
+change directory to this folder.
+create a file whose name is same as the ip adress of one machine in the inventory file.
+
+mkdir host_vars
+cd to host_vars
+vim 192.168.60.24
+
+a: git
+b: absent
+c: no
+
+wq:
+
+
+change directory to the folder where playbooks are present:
+
+---
+- name: uninstalling git
+  host: 192.168.60.24
+  tasks:
+   - apt: 
+      name: "{{a}}"
+      stae: "{{b}}"
+      update_cache: "{{c}}"
+...
+
+calling 1 playbooks from other playbook.. this can be done using the keyword calling include.  this will help in calling other playbooks and make the code more moduler.
+
+vim playbook12.yml
+---
+
+- name: create file/dir
+  file:
+   name: /home/vagrant/file190
+   state: touch
+   mode: 777
+   owner: root
+
+...
+
+vim playbook13.yml
+
+---
+- name: calling other playbooks
+  hosts: all
+  tasks: 
+   - include:
+      playbook12.yml
+...
+
+
+06-03-2018
+
+Coonfiguring apache2 using multiple files and include statement:
+
+vim playbook14.yml
+---
+- name: installing apache2
+  apt:
+   name: apache2
+   state: present
+...
+
+
+vim playbook15.yml
+
+---
+
+- name: Edit index.html file
+  copy:
+   content: "Welcome to intelliq"
+   dest: /var/www/html/index.html
+...
+
+vim playbook16.yml
+
+...
+
+- name: Restart apache2
+  service:
+   name: apache2
+   state: restarted
+...
+
+
+vim playbook17.yml
+
+- name: checking url response
+  uri:
+   url: http://192.168.60.23
+   status: 200
+...
+
+
+vim playbook18.yml
+
+
+- name: configuring apache2
+  hosts: 192.168.60.23
+  tasks: 
+   - include: "{{item}}"
+     with_items:
+      - playbook14.yml
+      - playbook15.yml
+      - playbook16.yml
+      - playbook17.yml
+...
+
+
+tagging in playbooks:
+
+
+Tagging of mudules can be done for controlling the execution of the playbooks
+
+
+vim playbook19.yml
+
+- name: Tagging of modules
+  hosts: 192.168.60.23
+  tasks:
+   - name: Install tree
+     apt:
+      name: tree	 
+      state: latest
+     tags:
+      tree_installation
+   - name: Copy password
+     copy:
+      src: /etc/passwd
+      dest: /home/vagrant
+     tags:
+      copy_passwd
+   - name: user creation
+     user:
+      name: Ravi
+      password: intelliq
+...
+
+to execute all the tagged modules from the above playbook
+ansible-playbook playbook19.yml --tags=tagged -b
+
+to execute only the tagged modules from the above playbook
+ansible-playbook playbook19.yml --tags=untagged -b
+
+
+To execute the module with the specific name
+ansible-playbook playbook19.yml --tags=copy_passwd -b
+
+
+Debug module:
+
+this module is used for displaying the output of any specific module. The output of a module captured through a registered variable and this registered variable can be printed using debug module.
+
+create a playbook for creating files and capture the results using debug module:
+
+vim playbook20.yml
+
+---
+- name: Debug module example
+  hosts: all
+  tasks:
+   - name: creating files
+     file:
+      name: file456
+      state: touch
+     register: results
+   - name: display the output
+     debug:
+      var: results
+...
+
+if conditions in ansible:
+
+These if conditions can be implemented by using keyword called when
+
+playbook for installing tree when a=20
+
+---
+- name: tree
+  hosts: 10.10.10.10
+  vars:
+   - a: 20
+  tasks:
+   - name: uninstalling tree
+     apt:
+      name: tree
+      state: absent
+     when: 
+      a==20
+...
+
+
+ 
+
+...
+
+
+
+roles are used for creating folder structure where we can store the configuration related any server. roles make the code more moduler.
+
+roles should be created in the folder /etc/ansible/roles.
+
+cd /etc/ansible/roles : sudo ansible-galaxy init apache --offline
+
+execute tree..
+
+components of roles:
+
+1. Defaults: this is used for storing the data about the application. the default variables stored here.
+2. files: the static files required for configuration of server stroed here.
+2. handlers; these events are triggered only if some other event is executed successfully.
+4. Meta : information about the version, the author who created the roles, the supported platforms etc.
+5. Tasks: this is the actucal action or the core logic  that should be implemented.
+6. Templates: this is used for storing dynamic data.
+7. Vars: used for storing variables of th highest priority.
+
+
+Whenever we execute any playbook it will first capture the remote server configuration information which is time taking process. we can skip that step using gather_facts: false
+ similarly some laybooks required sudo previliges which we specify using -b at the time of executing the playbook. We can skip this step by using become: yes within the playbook.
+
+---
+- name : jkdkjfdksdsd
+  hosts: xxxxxx
+  become: yes
+  gather_facts: false
+  tasks:
+
+
+...
+
+
+orcle xe
+
+
+
+To change the permissions of a folder along with its subfolders and files we can recuse=yes
+
+anisble all -m  file -a 'name=f1/f2 owner=vagrant group=vagrant mode=766 recurse=yes state=directory' -b
+
+
+apt module:
+
+command for installing tree on all the managed nodes:
+
+anisble all -m apt -a 'name=git state=present' -b
+
+state=present represet installation, state=absent represent uninstallation, state=latest is for upgrading.
+
+to install some packages after upgrading the apt repository we can use update_cache=yes.
+
+ansible command for installting git on all the managed nodes after updating apt repository
+
+anisble all -m apt -a 'name=git state=present update_cache=yes' -b
+
+services module:
+
+This is used for starting, stopping and restarting services in all managed nodes.
+
+command to stop apache2 from one managed node:
+
+ansbile 10.10.10.92 -m service -a 'name=apache2 state=stopped' -b
+
+we can give the state as stopped, started,restarted.
+
+
+uri module: This is used to check if a remote url is reachable or not. if it is reachable it will return the status as 200.
+
+command to check weather the google.com is reachable or not from all the manged nodes.
+
+anisble all -m uri -a 'url=www.google.com status=200'
+
+configuring apache2
+====================
+
+install apache2 on one managed node
+edit index.html file
+restart apache2
+check weather the url is reachable or not.
+
+
+ansible 10.10.10.92 -m apt -a 'name-apche2 state=present' -b
+ansible 10.10.10.92 -m copy -a 'dest=/var/www/html/index.html content="welcome to intelliq\n"'-b
+ansible 10.10.10.92 -m service -a 'name=apache2 service=restarted' -b
+ansible 10.10.10.92 -m uri -a 'url=http://10.10.10.92 status=200'
+
+
+USER module:
+
+this is used for user management on the remote managed hosts.
+
+create a user and assigned a password:
+
+ansible all -m user -a 'name=intelliq password=intelliq' -b
+
+we can also specify the home directory and default shell of the user.
+
+ansible all -m user -a 'name=intelliq password=intelliq home=/home/vagrant/intelliq shell=/bin/bash' -b
+
+create a user and copy the /etc/password file into his home directory.
+
+ansible all -m user -a 'name=anu password=intelliq' -b
+anisble all -m copy -a 'src=/etc/passwd dest=/home/anu' -b
+
+git module:
+
+This is used for performing version controlling on the managed nodes.
+Install git on all the manged nodes and download a git remote repository.
+
+ansible all -m apt -a 'name=git state=present'-b
+ansible all -m git -a 'repo=https://github.com/selenium-saikrishna/maven.git clone=yes dest=/home/vagrant/git' -b
+
+
+
+Fetch module:
+
+this is used to fetch the files from managed nodes to controller.
+
+fetch /etc/group file from all the managed nodes and save it in the controller
+
+ansible all -m fetch -a 'src=/src/group dest=/home/vagrant' -b
+
+
+copy a file from one managed node and place it on another managed node:
+
+ansible 10.10.10.92 -m fetch -a 'src=92file dest=/home/vagrant'
+
+ansible 10.10.10.93 -m copy -a 'src=/home/vagrant/10.10.10.92/92file dest=/home/vagrant'
+
+
+ansible playbooks:
+
+The ansible commands we executed till now are called as adhoc commands. and they can be used only performing a single operation. they cannot be used for complex configuration management activities.
+
+adhoc commands can work only on one module and one set of arguments. when we want to perform complex congiration management activities, we can use playbooks.
+
+Playbooks are created using yml. playbook is combination of plays.
+each play defines a set of operations that should be performed on the managed nodes. These operations are called tasks and managed nodes are called hosts.
+
+Create a folder on all the managed nodes and then copy a file into it.
+
+ansible all -m file -a 'name=folder1 state=directory'
+
+ansible all -m copy -a 'src=/etc/passwd dest=folder1'
+
+instead of using two commands we can create a single playbook.
+
+vim playbook1.yml
+
+---
+- name: creating dir and copying files
+  hosts: all
+  tasks:
+   - name: creating directory
+     file: 
+      name: folder2
+      state: directory
+   - name: copying files
+     copy:
+      src: /etc/passwd
+      dest: folder2
+
+...
+
+
+create users on all the managed hosts capture the usernames and home directories into a file called userinfo and fetch that file into controller.
+
+vim playbook2.yml
+
+---
+
+- name: Creating users and capturing their info
+  hosts: all
+  tasks:
+   - name: creating users
+     user:
+      name: satish
+      password: admin
+      home: /home/vagrant/satish
+   - name: Capturing user, home dir info
+     shell: cut -d ":" -f 1,6 /etc/passwd > userinfo
+   - name: fetching userinfo file
+     fetch:
+      src: userinfo
+      dest: /home/vagrant
+
+...
+
+
+configure apache2
+
+---
+- name: configuring apache2
+  hosts: 10.10.10.92
+  tasks:
+   - name: installing apache2
+     apt:
+      name: apache2
+      state: present
+   - name: Edit index.html file
+     copy:
+      content: "Home page of intelliq"
+      dest: /var/www/html/index.html
+   - name: restart apache2
+     service:
+      name: apache2
+      state: restarted
+   - name: checking url response
+     uri:
+      url: http://10.10.10.92
+      status: 200
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12-04-2018
+
+Loops in ansible:
+=================
+
+A Specific module can be executed multiple number of times using with_items:
+
+ansible playbook for installing multiple packages:
+
+---
+- name: installing/uninstalling packages
+  hosts: 10.10.10.92
+  tasks; 
+   - name: installing and uninstalling softwares
+     apt:
+      name: "{{item}}"
+      state: present
+      update_cache: no
+     with_items:
+      - tree
+      - git
+      - apache2
+...
+
+
+---
+- name: installing/uninstalling packages
+  hosts: 10.10.10.92
+  tasks; 
+   - name: installing and uninstalling softwares
+     apt:
+      name: "{{item.a}}"
+      state: "{{item.b}}"
+      update_cache: "{{item.c}}"
+     with_items:
+      - {a: tree,b: present,c: yes}
+      - {a: git,b: absent,c: no}
+      - {a: apache2,b: latest,c: no}
+...
+
+
+
+
+
+
+
+
+
+Playbook for creating multiple users and creating files and folder in their home directories.
+
+---
+- name: creating users and create files/dir
+  hosts: all
+  tasks:
+   - name: creating users
+     user:
+      name: "{{item.a}}"
+      password: "{{item.b}}"
+      home: "{{item.c}}"
+      shell: "{{item.d}}"
+     with_items:
+      - {a: Ramu,b: intelliq,c: /home/Ramu,d: /bin/bash}
+      - {a: Mahesh,b: intelliq,c: /home/vagrant/Mahesh,d: /bin/bash}
+   - name: creating files/dir
+     file:
+      name: "{{item.a}}"  
+      state: "{{item.b}}"
+     with_items:
+      - {a: /home/ramu/dir1,b: directory}
+      - {a: /home/vagrant/mahesh/file1,b: touch}
+...  
+
+
+
+
+
+04-14-2018
+
+
+
+Tagging in ansible:
+==================
+
+This is the feature of ansible using which it is possible to give specific names for modules. Once tagging is done ansible allows us to execute modules based on the tag names i.e., instead of executing the entire playbook we can execute only specific modules with perticular tag names.
+
+vim playbook17.yml
+
+---
+- name: Tagging modules
+  hosts: 10.10.10.92
+  tasks:
+   - name: installing tree
+     apt:
+      name: tree
+      state: present
+      update_cache: no
+     tags:
+      tree_installation
+   - Name: copying passwd file
+     copy:
+      src: /etc/passwd
+      dest: /tmp
+     tags:
+      copy_passwd
+   - name: user creation
+     user:
+      name: Harish
+      passwd: intelliq
+
+...
+
+to execute all the tagged modules from the above playbook
+
+ansible-playbook playbook17.yml --tags=tagged -b
+
+to execute all the untagged modules from the above playbook
+ansible-playbook playbook17.yml --tags=untagged -b
+
+to execute all the modules with specific tag name from the above playbook
+ansible-playbook playbook17.yml --tags=copy_passwd -b
+
+
+include statements:
+
+
+one playbook can call other playbook using include statement. the advantage of this process is we can create playbook which are moduler. each module will be designed to perform one activity.
+
+
+vim playbook18.yml
+
+---
+- name: installing git
+  apt: 
+   name: git
+   state: present
+
+...
+
+
+vim playbook19.yml
+
+
+---
+- name; calling other playbooks
+  hosts: 10.10.10.92
+  tasks:
+   - include:
+      playbook18.yml
+
+...
+
+
+Configuring apache2
+
+vim install_apache2
+
+---
+- name: installing apache2
+  apt:
+   name: apache2
+   state: present
+...
+
+
+vim edit_index.html
+---
+- name: editing index.html file
+  copy:
+   content: "intelliq home page\n"
+   dest: /var/www/html/index.html
+...
+
+
+vim restart_apache2
+
+---
+- name: restaring apache2
+  service:
+   name: restarting apache2
+   state: restarted
+
+...
+
+
+vim url_response
+
+---
+- name: checking url response
+  uri:
+   url: http://10.10.10.92
+   status: 200
+...
+
+
+vim configure_apache2.yml
+
+- name: Configuring apache2
+  hosts: 10.10.10.92
+  tasks:
+   - include: "{{item}}"
+     with_items:
+      - install_apache2
+      - edit_index.html
+      - restart_apache2
+      - url_response 
+  
+...
+
+
+Handlers:
+========
+
+If we want to execute a module if some other module is executed successfully and made some changes.
+Handlers are always executed only after all the tasks are executed.
+Handlers are executed in the same order in which they are mentined in the handler section and not in the order i.e. given in the tasks section.
+Though a handlers is called multiple number of times in the tasks section it will be executed only once.
+
+vim playbook20.yml
+
+---
+- name: Implementing handlers
+  hosts: 10.10.10.92
+  tasks: 
+   - name: install apache2
+     apt:  
+      name: apache2
+      state: present
+     notify:
+      - url_response
+   - name: Edit index.html
+     copy:
+      content: " Welcome to my new intelliq"
+      dest: /var/www/html/index.html
+     notify:
+      - restart_apache2
+  handlers:
+   - name: restart_apache2
+     service:
+      name: apache2
+      state: present
+   - name: url_response
+     uri:
+      url: http://10.10.10.92
+      status: 200
+...
+
+
+
+  
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...
