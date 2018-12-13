@@ -131,24 +131,24 @@ Date:08-02-2018
 
 
 Ansible command for capturing lines between 5-15 from /etc/passwd file and capture only those lines where there is a word called spool.
-Ansible all –m shell –a ‘head -15 /ect/passwd | tail -10 | grep spool . file2’
+Ansible all â€“m shell â€“a â€˜head -15 /ect/passwd | tail -10 | grep spool . file2â€™
 
 
 Package management in Ansible: This can be done using apt modle or yum module
 Apt module is used when working on Ubuntu, debain etc flavor of linux
 Yum is used when working on rhel, oel, centos, fedora etc.
 Ansible command to install git on all the managed hosts
-Ansible all –m apt –a ‘name-git state=present’  -b
-Note: “-b’” represents “becoming” ie on the remote managed hosts we get sudo privileges to run a command
+Ansible all â€“m apt â€“a â€˜name-git state=presentâ€™  -b
+Note: â€œ-bâ€™â€ represents â€œbecomingâ€ ie on the remote managed hosts we get sudo privileges to run a command
 State=present is used for installing a packages
 State=absent is used for uninstalling packages
 
-To update the apt repository before installing we can use “updte_chache=yes”
+To update the apt repository before installing we can use â€œupdte_chache=yesâ€
 Ansible command to install tree on all the managed hosts after update the apt repository
-Ansible all –m apt –a ‘name=tree state=present update_chache=yes’ –b
+Ansible all â€“m apt â€“a â€˜name=tree state=present update_chache=yesâ€™ â€“b
 
 Ansible command for installing apache2 on all the remote managed hosts and check if the apache2 default page is up or not
-Ansible all –m apt –a ‘name=apache2 state=present update_cache=no’ –b
+Ansible all â€“m apt â€“a â€˜name=apache2 state=present update_cache=noâ€™ â€“b
 Elinks http://192.168.60.12
 If elinks is not present on the controller
 Sudo apt-get install elinks
@@ -156,16 +156,16 @@ Sudo apt-get install elinks
 Date: 09-02-2018
 Copy module is used to copy the files from the controller machine to the remote managed hosts.
 Ansible command to copy a file from controller to all the managed hsots.
-Ansible all –m copy –a ‘src=file dest=/home/vagrant/file’
+Ansible all â€“m copy â€“a â€˜src=file dest=/home/vagrant/fileâ€™
 Copy module can also be used  control the permissions.  Give 777 permissions on file1 on all the manage hosts.
-Ansible all –m copy –a ‘scr=file des=/home/vagrant mode=777’
+Ansible all â€“m copy â€“a â€˜scr=file des=/home/vagrant mode=777â€™
 
 
-To copy directories mkdir –p d1/d2/d3/d4
-Ansible all –m copy –a ‘src=d1 des=/home/vagrant’
+To copy directories mkdir â€“p d1/d2/d3/d4
+Ansible all â€“m copy â€“a â€˜src=d1 des=/home/vagrantâ€™
 
 To change the ownership and group ownership
-Ansible all –m copy –a ‘src=file1 des=/home/vagrant owner=root group=root’ - b
+Ansible all â€“m copy â€“a â€˜src=file1 des=/home/vagrant owner=root group=rootâ€™ - b
 
 
 
@@ -176,48 +176,48 @@ Date:10-02-2018
 Copy module can also be used to send content into the files.
 Ansible command to send some content in to a file :
 
-Ansible 192.168.60.22 –m copy –a ‘content=’This is an ansible session\n” dest=/home/vagrant/file1’
+Ansible 192.168.60.22 â€“m copy â€“a â€˜content=â€™This is an ansible session\nâ€ dest=/home/vagrant/file1â€™
 
 Copy  module also can be used to copying  files present on a managed node into some other folder on the same managed node.
 
-Ansible all –m copy –a ‘remote_src=yes src=/home/vagrant/file1 dest=/tmp/file1’ –b
+Ansible all â€“m copy â€“a â€˜remote_src=yes src=/home/vagrant/file1 dest=/tmp/file1â€™ â€“b
 Install apache2 on one managed host and check the default home page using elinks:
 Modify the content of the index.html file  and check if the default page is loading with the new content..
 
-Ansible 192.168.60.22 –m apt –a ‘name=apache2 state=present’ –b
+Ansible 192.168.60.22 â€“m apt â€“a â€˜name=apache2 state=presentâ€™ â€“b
 Elinks http://192.168.60.22
-Ansible 192.168.60.22 –m copy –a ‘content=”welocome to intelliq \n” dest=/var/www/html/index.html’ -b
+Ansible 192.168.60.22 â€“m copy â€“a â€˜content=â€welocome to intelliq \nâ€ dest=/var/www/html/index.htmlâ€™ -b
 
 File module:
 This is used for creating files and directories on the managed nodes. We can also control the permissions ownership, group ownership etc.
 
 Ansible command for creating a file on the managed nodes.
-Ansible all –m  file –a ‘name-file1 state=touch’
+Ansible all â€“m  file â€“a â€˜name-file1 state=touchâ€™
 
 To create a directory  on managed nodes
-Ansible all –m file –a ‘name=dir1 state=directory’
+Ansible all â€“m file â€“a â€˜name=dir1 state=directoryâ€™
 
 Using file module we can control the ownership , group ownership and persmissions.
-Ansible all – file –a ‘name=dir1 state=directory owner=root group=vagrant mode=777’ –b
+Ansible all â€“ file â€“a â€˜name=dir1 state=directory owner=root group=vagrant mode=777â€™ â€“b
 
 Using file module we can recursively change the permissions ownership, group ownership, permissions etc.
 
-Ansible all –m file –a ‘name=f1/f2/f3 state=directory owner=root group=vagrant mode=000 recurse=yes’ –b
+Ansible all â€“m file â€“a â€˜name=f1/f2/f3 state=directory owner=root group=vagrant mode=000 recurse=yesâ€™ â€“b
 
 User module
 This used for creating users on the remote managed hosts:
 Ansible command to create a user and assign a password:
-Ansible all –m user –a ‘name=intelliq password=xyz’ –b
+Ansible all â€“m user â€“a â€˜name=intelliq password=xyzâ€™ â€“b
 
 We can also use this module for control default directory, default shell etc.
 
-Ansible all –m user –a  ‘name=intelliq password=abc home=/tmp shell=/bin/bash’ –b
+Ansible all â€“m user â€“a  â€˜name=intelliq password=abc home=/tmp shell=/bin/bashâ€™ â€“b
 
 Services module:
 This is used for starting, stopping, restarting services on the managed hosts.
 Ansible command to stop apache2 on one managed host.
-Ansible 192.168.60.22 –m service –a ‘name=apache2 state=stopped’ –b
-Similary we can use ‘state is start, restart”
+Ansible 192.168.60.22 â€“m service â€“a â€˜name=apache2 state=stoppedâ€™ â€“b
+Similary we can use â€˜state is start, restartâ€
 
 
 
@@ -226,7 +226,7 @@ Date: 12-02-2018
 
 
 Uri module  : This is used to check if a specific url  is reachable or not. If it is reachable we will get the status as 200, if it is not it will show  some other value.
-Ansible all –m uri –a ‘url=”http://google.com”   status=200’
+Ansible all â€“m uri â€“a â€˜url=â€http://google.comâ€   status=200â€™
 1.	Install apached2 on one managed host
 2.	Edit the content of index.html
 3.	Restart apached2
@@ -234,30 +234,30 @@ Ansible all –m uri –a ‘url=”http://google.com”   status=200’
 5.	Install firewalld
 6.	Check if the page is not reachable
 
-Ansible 192.168.60.21 –m apt –a ‘name=apache2  state=present’ –b
-Ansible 192.168.60.21 –m copy –a ‘content=”Welcome to Intelliq \n  Home page”  dest =/var/www/html/index.html’  -b
-Ansible 192.168.60.21 –m service –a ‘name=apache2 state=restarted’ –b
-Ansible all –m apt –a ‘name=firewalld state=present’ –b
-Ansible all –m uri –a ‘url=http://192.168.60.21 status=200’ (it will not reach now)
+Ansible 192.168.60.21 â€“m apt â€“a â€˜name=apache2  state=presentâ€™ â€“b
+Ansible 192.168.60.21 â€“m copy â€“a â€˜content=â€Welcome to Intelliq \n  Home pageâ€  dest =/var/www/html/index.htmlâ€™  -b
+Ansible 192.168.60.21 â€“m service â€“a â€˜name=apache2 state=restartedâ€™ â€“b
+Ansible all â€“m apt â€“a â€˜name=firewalld state=presentâ€™ â€“b
+Ansible all â€“m uri â€“a â€˜url=http://192.168.60.21 status=200â€™ (it will not reach now)
 
 
 Fetch Module
 This module is used for capturing the file from remote managed nodes in to the controller machine.
 Copy file 1 from all the managed nodes into the controller machine.
 
-Ansible all –m fetch –a ‘src=/home/vagrant/file1 dest=/home/vagrant’
+Ansible all â€“m fetch â€“a â€˜src=/home/vagrant/file1 dest=/home/vagrantâ€™
 
 Copy  /etc/passwd file from one managed host and send it  into another managed host:
-Ansible 192.168.60.22 –m fetch –a ‘src=etc/passwd dest=tmp’ –b
-Ansible 192.168.60.23 –m copy –a ‘src=/tmp/192.168.60.22/etc/passwd dest=/home/vagrant’
+Ansible 192.168.60.22 â€“m fetch â€“a â€˜src=etc/passwd dest=tmpâ€™ â€“b
+Ansible 192.168.60.23 â€“m copy â€“a â€˜src=/tmp/192.168.60.22/etc/passwd dest=/home/vagrantâ€™
 
 Git module:
 This is used to perform Git related operations on the managed hosts . i.e., downloading remote repository from Git, uploading into remote repository etc.,
 Install Git on all managed nodes
 Create an empty folder called git on all the managed hosts.
 Clone the git remote repository into this empty folder
-Ansible all –m apt –a ‘name=git state=present’ –b
-Ansible all –m git –a ‘repo=http://github.com/selenium-saikrishna/maven.git “ clone=yes dest=/home/vagrant/git’
+Ansible all â€“m apt â€“a â€˜name=git state=presentâ€™ â€“b
+Ansible all â€“m git â€“a â€˜repo=http://github.com/selenium-saikrishna/maven.git â€œ clone=yes dest=/home/vagrant/gitâ€™
 
 
 
@@ -2306,7 +2306,7 @@ vim playbook20.yml
 ...
 
 
-
+Just for testing the git fetch
   
 
 ...
